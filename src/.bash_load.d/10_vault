@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+export _vault_prefix=.vault
+
+function vault_load {
+    local environment=${1}
+    local vault_file=~/${_vault_prefix}.${environment}
+
+    if [ -z "$1" ]
+    then
+        echo "Usage: vault_load <environment>" >&2
+        return 1
+    fi
+
+    if [ ! -r ${vault_file} ]
+    then
+        printf "\n%s===\n=== %sThe vault file does not exist or is not readable: %s%s\n===\n%s" $_fmt_r $_fmt_x $vault_file $_fmt_r $_fmt_x >&2
+        return 2
+    fi
+
+    . ${vault_file}
+}
+export -f vault_load
+
+function vault_login {
+    echo "${_fmt_r}Unimplemented${_fmt_x}"
+    return
+    vault login -method=ldap -path=???? username=${USER}
+}
+export -f vault_login
+
+# Usage:
+#   vault_roleid <project> <component>
+function vault_roleid {
+    echo "${_fmt_r}Unimplemented${_fmt_x}"
+    return
+    if [ -z "$2" ]
+    then
+        echo "Usage: vault_roleid <project> <component" >&2
+        return 1
+    fi
+
+    vault read ????/${1}/role/${2}/role-id
+}
+export -f vault_roleid
+
+
+# Usage:
+#   vault_secretid <project> <component>
+function vault_secretid {
+    echo "${_fmt_r}Unimplemented${_fmt_x}"
+    return
+    if [ -z "$2" ]
+    then
+        echo "Usage: vault_secretid <project> <component" >&2
+        return 1
+    fi
+
+    vault write -f ????/${1}/role/${2}/secret-id
+
+    printf "%s===\n=== %sYou must update your VAULT_SECRET_ID export!%s\n===\n%s" $_fmt_g $_fmt_x $_fmt_g $_fmt_x
+}
+export -f vault_secretid

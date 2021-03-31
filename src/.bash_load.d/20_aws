@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+export _aws_credentials="${HOME}/.aws/credentials"
+
+function awsprofile {
+    local profile=$1
+    local default_profile=default
+    local profiles=(${default_profile} $(grep "^\[[a-z-]*]$" ${_aws_credentials} | tr -d '[]' | sort))
+    local profile_count=${#profiles[@]}
+
+    if [[ -z "${profile}" ]] || [[ ! "${profile}" =~ ^[0-${profile_count}]$ && ! " ${profiles[@]} " =~ " ${profile} " ]]
+    then
+        echo "Please provide an existing profile id/name:" >&2
+        local i=0
+        for p in ${profiles[@]}
+        do
+            echo "- (${i}) ${p}" >&2
+            i=$((i+1))
+        done
+        return
+    fi
+
+    if [[ "${profile}" =~ ^(${default_profile}|0)$ ]]
+    then
+        export AWS_PROFILE=""
+    elif [[ "${profile}" =~ ^[1-${profile_count}]$ ]]
+    then
+        export AWS_PROFILE=${profiles[profile-1]}
+    else
+        export AWS_PROFILE=${profile}
+    fi
+}
+export -f awsprofile

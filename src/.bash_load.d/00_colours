@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+# clear
+export _fmt_x=$'\033[0m'
+
+# modifiers (first and last letters)
+# bold
+export _fmt_bd=$'\033[1m'
+# dull
+export _fmt_dl=$'\033[2m'
+# italic
+export _fmt_ic=$'\033[3m'
+# underline
+export _fmt_ue=$'\033[4m'
+# invisible
+export _fmt_ie=$'\033[8m'
+
+# colours - foreground
+export _fmt_k=$'\033[30m'
+export _fmt_r=$'\033[31m'
+export _fmt_g=$'\033[32m'
+export _fmt_y=$'\033[33m'
+export _fmt_b=$'\033[34m'
+export _fmt_m=$'\033[35m'
+export _fmt_c=$'\033[36m'
+export _fmt_w=$'\033[37m'
+
+# colours - foreground light
+export _fmt_lk=$'\033[90m'
+export _fmt_lr=$'\033[91m'
+export _fmt_lg=$'\033[92m'
+export _fmt_ly=$'\033[93m'
+export _fmt_lb=$'\033[94m'
+export _fmt_lm=$'\033[95m'
+export _fmt_lc=$'\033[96m'
+export _fmt_lw=$'\033[97m'
+
+# colours - background
+export _fmt_bgk=$'\033[40m'
+export _fmt_bgr=$'\033[41m'
+export _fmt_bgg=$'\033[42m'
+export _fmt_bgy=$'\033[43m'
+export _fmt_bgb=$'\033[44m'
+export _fmt_bgm=$'\033[45m'
+export _fmt_bgc=$'\033[46m'
+export _fmt_bgw=$'\033[47m'

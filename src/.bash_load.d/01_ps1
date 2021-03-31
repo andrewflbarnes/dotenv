@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+
+function prompt_command {
+  local code=$?
+  local resp doll branch venv aws dir idenfitier meta jobs
+
+  if [[ $PIPENV_ACTIVE = 1 ]]
+  then
+    venv=${VIRTUAL_ENV%/*}
+    venv="\[${_fmt_m}${_fmt_bd}\][${venv##/*/}]\[${_fmt_x}\] "
+  fi
+
+  aws="\[${_fmt_w}${_fmt_bd}\][${AWS_PROFILE:-default}]\[${_fmt_x}\]"
+
+  dir="\[${_fmt_c}${_fmt_bd}\]{\w}\[${_fmt_x}\]"
+
+  branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+  if [ -n "${branch}" ]
+  then
+    branch="\[${_fmt_y}${_fmt_bd}\]$branch\[${_fmt_x}\] "
+  fi
+  
+  if [[ $code = 0 ]]
+  then
+    doll="\[${_fmt_g}\]\$\[${_fmt_x}\]"
+    resp=''
+  else
+    doll="\[${_fmt_r}\]\$\[${_fmt_x}\]"
+    resp="\[${_fmt_r}\]$code\[${_fmt_x}\] "
+  fi
+
+  identifier="\u@\h"
+
+  if [ $(jobs -p | wc -l) -gt 0 ]
+  then
+    jobs="\[${_fmt_dl}\][\j]\[${_fmt_x}\] "
+  fi
+
+  
+  # Note: optional elements (venv, branch, etc.) should have the space included in their
+  # construction if they exist
+  PS1="[\t] ${venv}${aws} ${dir} ${branch}${resp}\n${identifier} ${jobs}${doll} "
+}
+export -f prompt_command
+
+export PROMPT_COMMAND="prompt_command;_jenv_export_hook"
+
+# bit janky :( assumes the filename and location
+export _ps1_load_file="${HOME}/.bash_load.d/01_ps1"
+
+function ps1_reload {
+  if [ ! -r ${_ps1_load_file} ]
+  then
+    echo "${_fmt_r}Cannot read file${_fmt_x}: ${_ps1_load_file}"
+    return
+  fi
+
+  . ${_ps1_load_file}
+}
+export -f ps1_reload
+
+# keep the colours below in sync with PS1 for easy visual grepping :)
+function envinfo {
+  printf "%-20s ${_fmt_m}${_fmt_bd}%s${_fmt_x}\n" "Pip virtual env:"    ${VIRTUAL_ENV}
+  printf "%-20s ${_fmt_w}${_fmt_bd}%s${_fmt_x}\n" "AWS profile:"        ${AWS_PROFILE:-default}
+  printf "%-20s ${_fmt_c}${_fmt_bd}%s${_fmt_x}\n" "Working directory:"  $(pwd)
+  printf "%-20s ${_fmt_y}${_fmt_bd}%s${_fmt_x}\n" "Git branch:"         $(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+  printf "%-20s ${_fmt_dl}%s${_fmt_x}\n"          "Jobs:"               $(jobs -p | wc -l)
+}
+export -f envinfo

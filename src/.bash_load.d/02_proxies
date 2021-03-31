@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+export DEFAULT_PROXY_SCHEME=http
+
+# The function can be used to reload proxy settings, both manually and by other functions.
+function proxyr {
+  scheme=${1:-$DEFAULT_PROXY_SCHEME}
+
+  # Add your proxies here :)
+
+  # export https_proxy=
+  # export http_proxy=
+  # export HTTP_PROXY=
+  # export HTTPS_PROXY=
+  # export ALL_PROXY=
+  # export all_proxy=
+  # export NO_PROXY=
+  # export no_proxy=
+
+  _proxy_ensure_scheme $scheme
+}
+export -f proxyr
+
+# Ensures proxies are prefixed with the requested scheme
+function _proxy_ensure_scheme {
+  proxy_scheme=${1:-$DEFAULT_PROXY_SCHEME}
+  for proxy in http{,s}_proxy HTTP{,S}_PROXY all_proxy ALL_PROXY
+  do
+    eval '[[ "$'${proxy}'" == "$proxy_scheme"* ]] || export '${proxy}'="$proxy_scheme://$'${proxy}'"'
+  done
+}
+export -f _proxy_ensure_scheme
+
+# prints the commands for exporting proxy variables (e.g. for copypasta/eval)
+function proxyenv {
+  proxyr $@
+  for proxy in http{,s}_proxy HTTP{,S}_PROXY all_proxy ALL_PROXY no_proxy NO_PROXY
+  do
+    echo ${proxy}=$(eval echo \$$proxy)
+  done
+}
+export -f proxyenv
+
+# we expect the proxy on first load to come from ~/.bash_profile
+_proxy_ensure_scheme

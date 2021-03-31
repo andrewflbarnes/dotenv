@@ -1,0 +1,6 @@
+#!/usr/bin/env/bash
+
+function no_quarantine {
+  xattr -r -d com.apple.quarantine "$@"
+}
+export -f no_quarantine

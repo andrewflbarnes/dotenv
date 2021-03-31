@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+if [[ -d ~/.bash_load.d ]]
+then
+  echo "Loading login scripts..."
+  for i in ~/.bash_load.d/*
+  do  
+    [[ -r $i ]] && [[ "` basename $i`" =~ ^[0-9] ]] && {
+      printf "Loading %-35s" "$(basename $i)..."
+      . $i
+      printf "\033[1;32mDone\033[0m.\n"
+    }   
+  done
+fi
+

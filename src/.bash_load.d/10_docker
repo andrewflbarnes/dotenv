@@ -1,0 +1,36 @@
+#!/usr/bin/bash
+
+# Updates configuration following a brew upgrade docker
+function docker_reup {
+  echo "${_fmt_y}Warning${fmt_x}: You probably didn't want to run this on your system - if you did please enable it in the function definition"
+  return
+  sudo rsync -avu /Applications/Docker.app/Contents/Library/LaunchServices/com.docker.vmnetd /Library/PrivilegedHelperTools/com.docker.vmnetd
+  sudo rsync -avu /Applications/Docker.app/Contents/Resources/com.docker.vmnetd.plist /Library/LaunchDaemons/com.docker.vmnetd.plist
+  sudo chown root:wheel /Library/PrivilegedHelperTools/com.docker.vmnetd
+  sudo chown root:wheel /Library/LaunchDaemons/com.docker.vmnetd.plist
+  sudo chmod 544 /Library/PrivilegedHelperTools/com.docker.vmnetd
+  sudo chmod 644 /Library/LaunchDaemons/com.docker.vmnetd.plist
+  sudo launchctl load /Library/LaunchDaemons/com.docker.vmnetd.plist
+  sudo xattr -r -d com.apple.quarantine /Applications/Docker.app
+
+  docker-autocompletion
+}
+export -f docker_reup
+
+# Adds docker completion scripts to bash completion
+function docker_autocompletion {
+  for prog in docker{,-compose}
+  do
+    local source=/Applications/Docker.app/Contents/Resources/etc/${prog}.bash-completion
+    local dest=/usr/local/etc/bash_completion.d/${prog}
+
+    if [ -f $source ]
+    then
+      rm -f $dest
+      ln -s $source $dest
+    else
+      echo WARNING: Completion for $prog not found at $source >&2
+    fi
+  done
+}
+export -f docker_autocompletion

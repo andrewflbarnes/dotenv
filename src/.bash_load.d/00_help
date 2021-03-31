@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+function what_colours {
+    sed -n '
+        /export/ {
+            s/export \(.*\)=.*/\1/
+            p
+        }
+    ' ~/.bash_load.d/00_colours
+}
+export -f what_colours
+
+# user defined functions => udf
+function udf {
+    echo "Note: if you have modified source files with new or renamed functions but not reloaded"
+    echo "your terminal then the results below note reflect your actual session"
+    if [[ "full" = "${1}" ]]
+    then
+        for loadfile in $(find -L ~/.bash*.d -type f -mindepth 1 | sort)
+        do
+            awk '
+                BEGIN {
+                    print ARGV[1]
+                }
+                /^function [a-zA-Z]/ {
+                    print "- "$2
+                }
+            ' ${loadfile} | sort
+        done
+    else
+        find -L ~/.bash*.d -type f -mindepth 1 -exec awk '/^function [a-zA-Z]/{ print "- "$2 }' {} \; | sort
+    fi
+}
+export -f udf

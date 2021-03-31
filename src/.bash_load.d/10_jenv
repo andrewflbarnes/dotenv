@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+eval "$(jenv init -)"
+export -f _jenv_export_hook
