@@ -1,8 +1,3 @@
-[credential]
-	helper = osxkeychain
-[user]
-	email = andrewflbarnes@hotmail.co.uk
-	name = andrewflbarnes
 [alias]
 	addu = add -u
 	ams = am -3 --signoff *patch
@@ -25,5 +20,10 @@
 	ru = remote update
 	rv = remote -v
 	st = status --short --branch
+[credential]
+	helper = osxkeychain
 [pull]
     rebase = false
+[user]
+	email = andrewflbarnes@hotmail.co.uk
+	name = andrewflbarnes

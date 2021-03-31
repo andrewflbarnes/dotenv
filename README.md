@@ -5,13 +5,20 @@ Loader for `bash`.
 ### Install
 
 ```bash
+brew bundle install
+
 ./install.sh
+
+git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+jenv enable-plugin export
 
 cat << EOF >> ~/.bash_profile
 [[ -r ~/.bash_load ]]  && . ~/.bash_load
 [[ -r ~/.bashrc ]]  && . ~/.bashrc
 EOF
 ```
+
+Remove or comment out any sourcing of `~/.bashrc` from `/etc/bashrc`.
 
 ### Adding existing files to this repo
 
@@ -28,7 +35,7 @@ the files are loaded). Add any commands you want then open a new bash shell.
 
 ### Notes
 
-- .bash_load should be sourced **before** .bashrc
+- `.bash_load` should be sourced **before** .bashrc
 - bash config which can be loaded once by an initial shell and exports its configuration should be added to
   `~/.bash_load.d` e.g. `10_nvm`
 - bash config which must be loaded by every shell and does not export its configuration should be added to
