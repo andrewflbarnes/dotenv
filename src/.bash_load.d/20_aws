@@ -5,7 +5,7 @@ export _aws_credentials="${HOME}/.aws/credentials"
 function awsprofile {
     local profile=$1
     local default_profile=default
-    local profiles=(${default_profile} $(grep "^\[[a-z-]*]$" ${_aws_credentials} | tr -d '[]' | sort))
+    local profiles=(${default_profile} $(grep "^\[[a-z-]*]$" ${_aws_credentials} | tr -d '[]' | sort | grep -v default))
     local profile_count=${#profiles[@]}
 
     if [[ -z "${profile}" ]] || [[ ! "${profile}" =~ ^[0-${profile_count}]$ && ! " ${profiles[@]} " =~ " ${profile} " ]]
@@ -25,7 +25,7 @@ function awsprofile {
         export AWS_PROFILE=""
     elif [[ "${profile}" =~ ^[1-${profile_count}]$ ]]
     then
-        export AWS_PROFILE=${profiles[profile-1]}
+        export AWS_PROFILE=${profiles[profile]}
     else
         export AWS_PROFILE=${profile}
     fi

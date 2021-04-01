@@ -68,6 +68,6 @@ function envinfo {
   printf "%-20s ${_fmt_w}${_ps1_bold}%s${_fmt_x}\n" "AWS profile:"        ${AWS_PROFILE:-default}
   printf "%-20s ${_fmt_c}${_ps1_bold}%s${_fmt_x}\n" "Working directory:"  $(pwd)
   printf "%-20s ${_fmt_y}${_ps1_bold}%s${_fmt_x}\n" "Git branch:"         $(git rev-parse --abbrev-ref HEAD 2>/dev/null)
-  printf "%-20s ${_fmt_dl}%s${_fmt_x}\n"          "Jobs:"               $(jobs -p | wc -l)
+  printf "%-20s ${_fmt_dl}%s${_fmt_x}\n"            "Jobs:"               $(jobs -p | wc -l)
 }
 export -f envinfo
