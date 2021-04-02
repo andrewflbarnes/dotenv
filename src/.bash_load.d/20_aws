@@ -2,28 +2,35 @@
 
 export _aws_credentials="${HOME}/.aws/credentials"
 
+export _aws_none=none
+export _aws_default=default
+
 function awsprofile {
     local profile=$1
-    local default_profile=default
-    local profiles=(${default_profile} $(grep "^\[[a-z-]*]$" ${_aws_credentials} | tr -d '[]' | sort | grep -v default))
+    local profiles=(${_aws_default} $(grep "^\[[a-z-]*]$" ${_aws_credentials} | tr -d '[]' | sort))
     local profile_count=${#profiles[@]}
 
-    if [[ -z "${profile}" ]] || [[ ! "${profile}" =~ ^[0-${profile_count}]$ && ! " ${profiles[@]} " =~ " ${profile} " ]]
+    if [[ -z "${profile}" ]] || [ $((profile_count-profile-1)) -lt 0 ] || [[ ! "${profile}" =~ ^[0-${profile_count}]$ && ! " ${profiles[@]} " =~ " ${profile} " ]]
     then
         echo "Please provide an existing profile id/name:" >&2
         local i=0
         for p in ${profiles[@]}
         do
-            echo "- (${i}) ${p}" >&2
+            if [[ "${AWS_PROFILE}" = "${p}" ]] || [ -z "${AWS_PROFILE}" -a "${i}" -eq 0 ]
+            then
+                printf -- "- %-4s ${_fmt_g}${p}${_fmt_x}\n" "(${i})" >&2
+            else
+                printf -- "- %-4s ${p}\n" "(${i})" >&2
+            fi
             i=$((i+1))
         done
         return
     fi
 
-    if [[ "${profile}" =~ ^(${default_profile}|0)$ ]]
+    if [[ "${profile}" =~ ^(${_aws_default}|0)$ ]]
     then
         export AWS_PROFILE=""
-    elif [[ "${profile}" =~ ^[1-${profile_count}]$ ]]
+    elif [[ "${profile}" =~ ^[0-9]+$ ]]
     then
         export AWS_PROFILE=${profiles[profile]}
     else
@@ -31,3 +38,62 @@ function awsprofile {
     fi
 }
 export -f awsprofile
+
+export _aws_regions=(
+${_aws_none}
+af-south-1
+ap-east-1
+ap-northeast-1
+ap-northeast-2
+ap-northeast-3
+ap-south-1
+ap-southeast-1
+ap-southeast-2
+ca-central-1
+eu-central-1
+eu-north-1
+eu-south-1
+eu-west-1
+eu-west-2
+eu-west-3
+me-south-1
+sa-east-1
+us-east-1
+us-east-2
+us-west-1
+us-west-2
+)
+
+function awsregion {
+    local region=$1
+    local regions=(${_aws_regions[@]})
+    local region_count=${#regions[@]}
+
+    if [[ -z "${region}" ]] || [ $((region_count-region-1)) -lt 0 ] || [[ ! "${region}" =~ ^[0-9]+$ && ! " ${regions[@]} " =~ " ${region} " ]]
+    then
+        echo "Please provide an existing region id/name:" >&2
+        local i=0
+        for p in ${regions[@]}
+        do
+            if [[ "${AWS_DEFAULT_REGION}" = "${p}" ]] || [ -z "${AWS_DEFAULT_REGION}" -a "${i}" -eq 0 ]
+            then
+                printf -- "- %-4s ${_fmt_g}${p}${_fmt_x}\n" "(${i})" >&2
+            else
+                printf -- "- %-4s ${p}\n" "(${i})" >&2
+            fi
+            i=$((i+1))
+        done
+        return
+    fi
+
+    if [[ "${region}" =~ ^(${_aws_none}|0)$ ]]
+    then
+        export AWS_DEFAULT_REGION=""
+    elif [[ "${region}" =~ ^[0-9]+$ ]]
+    then
+        export AWS_DEFAULT_REGION=${regions[region]}
+    else
+        export AWS_DEFAULT_REGION=${region}
+    fi
+}
+export -f awsregion

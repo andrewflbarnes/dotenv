@@ -1,26 +1,30 @@
 #!/usr/bin/env bash
 
-#export _ps1_bold=${_fmt_bd}
-export _ps1_bold=
+export _ps1_bd=${_fmt_bd}
+# export _ps1_bd=""
 
 function prompt_command {
   local code=$?
-  local resp doll branch venv aws dir idenfitier meta jobs
+  local resp doll branch venv aws dir idenfitier meta jobs java
 
   if [[ $PIPENV_ACTIVE = 1 ]]
   then
     venv=${VIRTUAL_ENV%/*}
-    venv="\[${_fmt_m}${_ps1_bold}\][${venv##/*/}]\[${_fmt_x}\] "
+    venv="\[${_fmt_m}${_ps1_bd}\][${venv##/*/}]\[${_fmt_x}\] "
   fi
 
-  aws="\[${_fmt_w}${_ps1_bold}\][${AWS_PROFILE:-default}]\[${_fmt_x}\]"
+  aws="\[${_fmt_w}${_ps1_bd}\][${AWS_DEFAULT_REGION:-none}:${AWS_PROFILE:-default}]\[${_fmt_x}\]"
 
-  dir="\[${_fmt_c}${_ps1_bold}\]{\w}\[${_fmt_x}\]"
+  # 50-60x faster than jenv version
+  java=$(( [ -n "${JENV_VERSION}" ] && echo ${JENV_VERSION} ) || ( [ -r .java-version ] && cat .java-version ) || ( [ -r ~/.jenv/version ] && cat ~/.jenv/version ))
+  java="\[${_fmt_lb}\][java:${java}]\[${_fmt_x}\]"
+
+  dir="\[${_fmt_c}${_ps1_bd}\]{\w}\[${_fmt_x}\]"
 
   branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
   if [ -n "${branch}" ]
   then
-    branch="\[${_fmt_y}${_ps1_bold}\]$branch\[${_fmt_x}\] "
+    branch="\[${_fmt_y}${_ps1_bd}\]$branch\[${_fmt_x}\] "
   fi
   
   if [[ $code = 0 ]]
@@ -42,7 +46,7 @@ function prompt_command {
   
   # Note: optional elements (venv, branch, etc.) should have the space included in their
   # construction if they exist
-  PS1="[\t] ${venv}${aws} ${dir} ${branch}${resp}\n${identifier} ${jobs}${doll} "
+  PS1="[\t] ${venv}${java} ${aws} ${dir} ${branch}${resp}\n${identifier} ${jobs}${doll} "
 }
 export -f prompt_command
 
@@ -64,10 +68,14 @@ export -f ps1_reload
 
 # keep the colours below in sync with PS1 for easy visual grepping :)
 function envinfo {
-  printf "%-20s ${_fmt_m}${_ps1_bold}%s${_fmt_x}\n" "Pip virtual env:"    ${VIRTUAL_ENV}
-  printf "%-20s ${_fmt_w}${_ps1_bold}%s${_fmt_x}\n" "AWS profile:"        ${AWS_PROFILE:-default}
-  printf "%-20s ${_fmt_c}${_ps1_bold}%s${_fmt_x}\n" "Working directory:"  $(pwd)
-  printf "%-20s ${_fmt_y}${_ps1_bold}%s${_fmt_x}\n" "Git branch:"         $(git rev-parse --abbrev-ref HEAD 2>/dev/null)
-  printf "%-20s ${_fmt_dl}%s${_fmt_x}\n"            "Jobs:"               $(jobs -p | wc -l)
+  local java=$(( [ -n "${JENV_VERSION}" ] && echo ${JENV_VERSION} ) || ( [ -r .java-version ] && cat .java-version ) || ( [ -r ~/.jenv/version ] && cat ~/.jenv/version ))
+
+  printf "%-20s ${_fmt_m}${_ps1_bd}%s${_fmt_x}\n" "Pipenv:"             ${VIRTUAL_ENV}
+  printf "%-20s ${_fmt_lb}%s${_fmt_x}\n"          "Java version:"       ${java}
+  printf "%-20s ${_fmt_w}${_ps1_bd}%s${_fmt_x}\n" "AWS region:"         ${AWS_DEFAULT_REGION:-none}
+  printf "%-20s ${_fmt_w}${_ps1_bd}%s${_fmt_x}\n" "AWS profile:"        ${AWS_PROFILE:-default}
+  printf "%-20s ${_fmt_c}${_ps1_bd}%s${_fmt_x}\n" "Working directory:"  $(pwd)
+  printf "%-20s ${_fmt_y}${_ps1_bd}%s${_fmt_x}\n" "Git branch:"         $(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+  printf "%-20s ${_fmt_dl}%s${_fmt_x}\n"          "Jobs:"               $(jobs -p | wc -l)
 }
 export -f envinfo
