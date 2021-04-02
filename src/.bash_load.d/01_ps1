@@ -1,32 +1,34 @@
 #!/usr/bin/env bash
 
-export _ps1_bd=${_fmt_bd}
-# export _ps1_bd=""
-
 function prompt_command {
   local code=$?
-  local resp doll branch venv aws dir idenfitier meta jobs java
 
+  local venv
   if [[ $PIPENV_ACTIVE = 1 ]]
   then
     venv=${VIRTUAL_ENV%/*}
-    venv="\[${_fmt_m}${_ps1_bd}\][${venv##/*/}]\[${_fmt_x}\] "
+    venv="\[${_fmt_lm}\][${venv##/*/}]\[${_fmt_x}\] "
   fi
 
-  aws="\[${_fmt_w}${_ps1_bd}\][${AWS_DEFAULT_REGION:-none}:${AWS_PROFILE:-default}]\[${_fmt_x}\]"
+  local aws
+  aws="\[${_fmt_lw}\][${AWS_DEFAULT_REGION:-none}:${AWS_PROFILE:-default}]\[${_fmt_x}\]"
 
+  local java
   # 50-60x faster than jenv version
-  java=$(( [ -n "${JENV_VERSION}" ] && echo ${JENV_VERSION} ) || ( [ -r .java-version ] && cat .java-version ) || ( [ -r ~/.jenv/version ] && cat ~/.jenv/version ))
+  java=$(( [ -n "${JENV_VERSION}" ] && echo ${JENV_VERSION} ) || ( [ -r .java-version ] && cat .java-version ) || ( [ -r ~/.jenv/version ] && cat ~/.jenv/version ) || echo "system")
   java="\[${_fmt_lb}\][java:${java}]\[${_fmt_x}\]"
 
-  dir="\[${_fmt_c}${_ps1_bd}\]{\w}\[${_fmt_x}\]"
+  local dir
+  dir="\[${_fmt_lc}\]{\w}\[${_fmt_x}\]"
 
+  local branch
   branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
   if [ -n "${branch}" ]
   then
-    branch="\[${_fmt_y}${_ps1_bd}\]$branch\[${_fmt_x}\] "
+    branch="\[${_fmt_ly}\]$branch\[${_fmt_x}\] "
   fi
   
+  local doll resp
   if [[ $code = 0 ]]
   then
     doll="\[${_fmt_g}\]\$\[${_fmt_x}\]"
@@ -36,8 +38,10 @@ function prompt_command {
     resp="\[${_fmt_r}\]$code\[${_fmt_x}\] "
   fi
 
+  local identifier
   identifier="\u@\h"
 
+  local jobs
   if [ $(jobs -p | wc -l) -gt 0 ]
   then
     jobs="\[${_fmt_dl}\][\j]\[${_fmt_x}\] "
@@ -68,14 +72,14 @@ export -f ps1_reload
 
 # keep the colours below in sync with PS1 for easy visual grepping :)
 function envinfo {
-  local java=$(( [ -n "${JENV_VERSION}" ] && echo ${JENV_VERSION} ) || ( [ -r .java-version ] && cat .java-version ) || ( [ -r ~/.jenv/version ] && cat ~/.jenv/version ))
+  local java=$(( [ -n "${JENV_VERSION}" ] && echo ${JENV_VERSION} ) || ( [ -r .java-version ] && cat .java-version ) || ( [ -r ~/.jenv/version ] && cat ~/.jenv/version ) || echo "system")
 
-  printf "%-20s ${_fmt_m}${_ps1_bd}%s${_fmt_x}\n" "Pipenv:"             ${VIRTUAL_ENV}
-  printf "%-20s ${_fmt_lb}%s${_fmt_x}\n"          "Java version:"       ${java}
-  printf "%-20s ${_fmt_w}${_ps1_bd}%s${_fmt_x}\n" "AWS region:"         ${AWS_DEFAULT_REGION:-none}
-  printf "%-20s ${_fmt_w}${_ps1_bd}%s${_fmt_x}\n" "AWS profile:"        ${AWS_PROFILE:-default}
-  printf "%-20s ${_fmt_c}${_ps1_bd}%s${_fmt_x}\n" "Working directory:"  $(pwd)
-  printf "%-20s ${_fmt_y}${_ps1_bd}%s${_fmt_x}\n" "Git branch:"         $(git rev-parse --abbrev-ref HEAD 2>/dev/null)
-  printf "%-20s ${_fmt_dl}%s${_fmt_x}\n"          "Jobs:"               $(jobs -p | wc -l)
+  printf "%-20s ${_fmt_lm}%s${_fmt_x}\n" "Pipenv:"             ${VIRTUAL_ENV}
+  printf "%-20s ${_fmt_lb}%s${_fmt_x}\n" "Java version:"       ${java}
+  printf "%-20s ${_fmt_lw}%s${_fmt_x}\n" "AWS region:"         ${AWS_DEFAULT_REGION:-none}
+  printf "%-20s ${_fmt_lw}%s${_fmt_x}\n" "AWS profile:"        ${AWS_PROFILE:-default}
+  printf "%-20s ${_fmt_lc}%s${_fmt_x}\n" "Working directory:"  $(pwd)
+  printf "%-20s ${_fmt_ly}%s${_fmt_x}\n" "Git branch:"         $(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+  printf "%-20s ${_fmt_dl}%s${_fmt_x}\n" "Jobs:"               $(jobs -p | wc -l)
 }
 export -f envinfo
