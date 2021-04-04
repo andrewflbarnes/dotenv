@@ -10,19 +10,19 @@ function prompt_command {
     venv="\[${_fmt_lm}\][${venv##/*/}]\[${_fmt_x}\] "
   fi
 
-  local aws
-  aws="\[${_fmt_lw}\][${AWS_DEFAULT_REGION:-none}:${AWS_PROFILE:-default}]\[${_fmt_x}\]"
+  local aws="\[${_fmt_lw}\][${AWS_DEFAULT_REGION:-none}:${AWS_PROFILE:-default}]\[${_fmt_x}\]"
 
-  local java
   # 50-60x faster than jenv version
-  java=$(( [ -n "${JENV_VERSION}" ] && echo ${JENV_VERSION} ) || ( [ -r .java-version ] && cat .java-version ) || ( [ -r ~/.jenv/version ] && cat ~/.jenv/version ) || echo "system")
-  java="\[${_fmt_lb}\][java:${java}]\[${_fmt_x}\]"
+  local java=$(( [ -n "${JENV_VERSION}" ] && echo ${JENV_VERSION} ) || ( [ -r .java-version ] && cat .java-version ) || ( [ -r ~/.jenv/version ] && cat ~/.jenv/version ) || echo "system")
 
-  local dir
-  dir="\[${_fmt_lc}\]{\w}\[${_fmt_x}\]"
+  # 10x faster than pyenv version
+  local python=$(( [ -n "${PYENV_VERSION}" ] && echo ${PYENV_VERSION} ) || ( [ -r .python-version ] && cat .python-version ) || ( [ -r ~/.pyenv/version ] && cat ~/.pyenv/version ) || echo "system")
 
-  local branch
-  branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+  local versions="\[${_fmt_lb}\][java:${java}] [python:${python}]\[${_fmt_x}\]"
+
+  local dir="\[${_fmt_lc}\]{\w}\[${_fmt_x}\]"
+
+  local branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
   if [ -n "${branch}" ]
   then
     branch="\[${_fmt_ly}\]$branch\[${_fmt_x}\] "
@@ -31,15 +31,28 @@ function prompt_command {
   local doll resp
   if [[ $code = 0 ]]
   then
-    doll="\[${_fmt_g}\]\$\[${_fmt_x}\]"
+    doll="\[${_fmt_g}\]\\$\[${_fmt_x}\]"
     resp=''
   else
-    doll="\[${_fmt_r}\]\$\[${_fmt_x}\]"
+    doll="\[${_fmt_r}\]\\$\[${_fmt_x}\]"
     resp="\[${_fmt_r}\]$code\[${_fmt_x}\] "
   fi
 
+  local user
+  if [ ${EUID} -eq 0 ]
+  then
+    user=""
+  else
+    user="\u"
+  fi
+
   local identifier
-  identifier="\u@\h"
+  if [[ ${SSH_CLIENT} ]] || [[ ${SSH2_CLIENT} ]]
+  then
+    identifier="${user}@\h"
+  else
+    identifier="${user}"
+  fi
 
   local jobs
   if [ $(jobs -p | wc -l) -gt 0 ]
@@ -50,7 +63,7 @@ function prompt_command {
   
   # Note: optional elements (venv, branch, etc.) should have the space included in their
   # construction if they exist
-  PS1="[\t] ${venv}${java} ${aws} ${dir} ${branch}${resp}\n${identifier} ${jobs}${doll} "
+  PS1="${venv}${versions} ${aws} ${dir} ${branch}${resp}\n[\t] ${identifier} ${jobs}${doll} "
 }
 export -f prompt_command
 
@@ -72,14 +85,27 @@ export -f ps1_reload
 
 # keep the colours below in sync with PS1 for easy visual grepping :)
 function envinfo {
+  local code=$?
+  local cde_fmt
+  if [ "0" -eq "${code}" ]
+  then
+    cde_fmt=${_fmt_g}
+  else
+    cde_fmt=${_fmt_r}
+  fi
   local java=$(( [ -n "${JENV_VERSION}" ] && echo ${JENV_VERSION} ) || ( [ -r .java-version ] && cat .java-version ) || ( [ -r ~/.jenv/version ] && cat ~/.jenv/version ) || echo "system")
+  local python=$(( [ -n "${PYENV_VERSION}" ] && echo ${PYENV_VERSION} ) || ( [ -r .python-version ] && cat .python-version ) || ( [ -r ~/.pyenv/version ] && cat ~/.pyenv/version ) || echo "system")
 
-  printf "%-20s ${_fmt_lm}%s${_fmt_x}\n" "Pipenv:"             ${VIRTUAL_ENV}
-  printf "%-20s ${_fmt_lb}%s${_fmt_x}\n" "Java version:"       ${java}
-  printf "%-20s ${_fmt_lw}%s${_fmt_x}\n" "AWS region:"         ${AWS_DEFAULT_REGION:-none}
-  printf "%-20s ${_fmt_lw}%s${_fmt_x}\n" "AWS profile:"        ${AWS_PROFILE:-default}
-  printf "%-20s ${_fmt_lc}%s${_fmt_x}\n" "Working directory:"  $(pwd)
-  printf "%-20s ${_fmt_ly}%s${_fmt_x}\n" "Git branch:"         $(git rev-parse --abbrev-ref HEAD 2>/dev/null)
-  printf "%-20s ${_fmt_dl}%s${_fmt_x}\n" "Jobs:"               $(jobs -p | wc -l)
+  printf "%-25s ${_fmt_lm}%s${_fmt_x}\n"  "Pipenv:"                 ${VIRTUAL_ENV}
+  printf "%-25s ${_fmt_lb}%s${_fmt_x}\n"  "Java version:"           ${java}
+  printf "%-25s ${_fmt_lb}%s${_fmt_x}\n"  "Python version:"         ${python}
+  printf "%-25s ${_fmt_lw}%s${_fmt_x}\n"  "AWS region:"             ${AWS_DEFAULT_REGION:-none}
+  printf "%-25s ${_fmt_lw}%s${_fmt_x}\n"  "AWS profile:"            ${AWS_PROFILE:-default}
+  printf "%-25s ${_fmt_lc}%s${_fmt_x}\n"  "Working directory:"      $(pwd)
+  printf "%-25s ${_fmt_ly}%s${_fmt_x}\n"  "Git branch:"             $(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+  printf "%-25s ${_fmt_dl}%s${_fmt_x}\n"  "Jobs:"                   $(jobs -p | wc -l)
+  printf "%-25s ${cde_fmt}%s${_fmt_x}\n"  "Exit code (preserved):"  ${code}
+
+  return ${code}
 }
 export -f envinfo

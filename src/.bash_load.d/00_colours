@@ -25,6 +25,16 @@ export _fmt_m=$'\033[35m'
 export _fmt_c=$'\033[36m'
 export _fmt_w=$'\033[37m'
 
+# colours - foreground dull
+export _fmt_dk=$'\033[2;30m'
+export _fmt_dr=$'\033[2;31m'
+export _fmt_dg=$'\033[2;32m'
+export _fmt_dy=$'\033[2;33m'
+export _fmt_db=$'\033[2;34m'
+export _fmt_dm=$'\033[2;35m'
+export _fmt_dc=$'\033[2;36m'
+export _fmt_dw=$'\033[2;37m'
+
 # colours - foreground light
 export _fmt_lk=$'\033[90m'
 export _fmt_lr=$'\033[91m'
