@@ -7,7 +7,7 @@ export _aws_default=default
 
 function awsprofile {
     local profile=$1
-    local profiles=(${_aws_default} $(grep "^\[[a-z-]*]$" ${_aws_credentials} | tr -d '[]' | sort))
+    local profiles=(${_aws_default} $(grep "^\[[a-z-]*]$" ${_aws_credentials} | grep -v "\[default]" | tr -d '[]' | sort))
     local profile_count=${#profiles[@]}
 
     if [[ -z "${profile}" ]] || [ $((profile_count-profile-1)) -lt 0 ] || [[ ! "${profile}" =~ ^[0-${profile_count}]$ && ! " ${profiles[@]} " =~ " ${profile} " ]]
@@ -29,7 +29,7 @@ function awsprofile {
 
     if [[ "${profile}" =~ ^(${_aws_default}|0)$ ]]
     then
-        export AWS_PROFILE=""
+        unset AWS_PROFILE
     elif [[ "${profile}" =~ ^[0-9]+$ ]]
     then
         export AWS_PROFILE=${profiles[profile]}
@@ -88,7 +88,7 @@ function awsregion {
 
     if [[ "${region}" =~ ^(${_aws_none}|0)$ ]]
     then
-        export AWS_DEFAULT_REGION=""
+        unset AWS_DEFAULT_REGION
     elif [[ "${region}" =~ ^[0-9]+$ ]]
     then
         export AWS_DEFAULT_REGION=${regions[region]}
