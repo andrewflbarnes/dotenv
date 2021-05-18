@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
 
-eval "$(jenv init -)"
-export -f _jenv_export_hook
+if [ "${JENV_LOADED:-0}" -ne "1" ]
+then
+    eval "$(jenv init -)"
+    export -f _jenv_export_hook
+fi
