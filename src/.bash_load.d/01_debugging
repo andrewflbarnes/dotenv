@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+# Usage: eval $(debug_fd_open [ fd_variable ])
+# Where:
+#   fd_variable - an optional name for the variable to store the FD in, defaults to dfd.
+#
+# If the variable udfdebug=1 then this will return an FD to stderr, otherwise it will
+# point to /dev/null
+#
+# Example use:
+function example_debug_fd {
+  eval $(debug_fd_open dbg)
+  echo "DEBUG: Starting function" >&$dbg
+  echo "Hello, World!"
+  echo "DEBUG: Stopping function" >&$dbg
+}
+#
+# // No debug output
+# udfdebug=0
+# example_debug_fd
+#
+# udfdebug=1
+# udfdebug=0 example_debug_fd
+# // Debug output
+# udfdebug=1
+# example_debug_fd
+#
+# udfdebug=0
+# udfdebug=1 example_debug_fd
+#
+# Notes:
+# In general closing the FD in a function is not required as it will be closed on return
+# anyway.
+function debug_fd_open {
+    local fdid=${1:-dfd}
+    if [[ "${udfdebug}" -eq "1" ]]
+    then
+        echo "exec {${fdid}}>&2"
+    else
+        echo "exec {${fdid}}>/dev/null"
+    fi
+}
+export -f debug_fd_open
+
+function debug_fd_close {
+    local fd=$1
+    exec {fd}>&-
+}
+export -f debug_fd_close
