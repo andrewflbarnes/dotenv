@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+eval "$(rustup completions bash)"
+eval "$(rustup completions bash cargo)"
