@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+export EDITOR=vim
+
+function finder_show_all_files {
+    local set=$1
+
+    if [ -z "${set}" ]
+    then
+        echo "Usage:" >&2
+        echo "  finder_show_all_files true|false" >&2
+        return 1
+    fi
+
+    defaults write com.apple.finder AppleShowAllFiles ${set}
+    echo "Reload finder with \"killall Finder\"" >&2
+}
+export -f finder_show_all_files
