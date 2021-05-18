@@ -1,62 +1,97 @@
 #!/usr/bin/env bash
 
-export _vault_prefix=.vault
+export _vault_prefix=".vault."
+export _vault_suffix=""
+export _vault_loaded=""
+export _vault_none="none"
 
-function vault_load {
+# Usage:
+#   vaultprofile [ <profile ID> | <profile name> ]
+#
+# e.g.
+#   vaultprofile 1
+#   vaultprofile hadron-deloyer-dev
+#
+function vaultprofile {
     local environment=${1}
-    local vault_file=~/${_vault_prefix}.${environment}
+    local environments=(${_vault_none} $(ls ${HOME}/${_vault_prefix}*${_vault_suffix} | xargs -L1 basename | sed "s/^${_vault_prefix}//g;s/${_vault_suffix}/\$/g"))
+    local environment_count=${#environments[@]}
 
-    if [ -z "$1" ]
+    if [[ -z "${environment}" ]] || [ $((environment_count-environment-1)) -lt 0 ] || [[ ! "${environment}" =~ ^[0-9]+$ && ! " ${environments[@]} " =~ " ${environment} " ]]
     then
-        echo "Usage: vault_load <environment>" >&2
-        return 1
+        echo "Please provide an existing environment id/name:" >&2
+        local i=0
+        for e in ${environments[@]}
+        do
+            if [[ "${_vault_loaded}" = "${e}" ]] || [ -z "${_vault_loaded}" -a "${i}" -eq 0 ]
+            then
+                printf -- "- %-4s ${_fmt_g}${e}${_fmt_x}\n" "(${i})" >&2
+            else
+                printf -- "- %-4s ${e}\n" "(${i})" >&2
+            fi
+            i=$((i+1))
+        done
+        return
     fi
 
-    if [ ! -r ${vault_file} ]
+    if [[ "${environment}" =~ ^(${_vault_none}|0)$ ]]
     then
-        printf "\n%s===\n=== %sThe vault file does not exist or is not readable: %s%s\n===\n%s" $_fmt_r $_fmt_x $vault_file $_fmt_r $_fmt_x >&2
-        return 2
+        unset _vault_loaded
+        unset VAULT_ADDR
+        unset VAULT_ROLE_ID
+        unset VAULT_SECRET_ID
+    else
+        local vault_env
+        if [[ "${environment}" =~ ^[0-9]+$ ]]
+        then
+            vault_env=${environments[environment]}
+        else
+            vault_env=${environment}
+        fi
+        . ${HOME}/${_vault_prefix}${vault_env}${_vault_suffix}
+        export _vault_loaded=${vault_env}
     fi
-
-    . ${vault_file}
 }
-export -f vault_load
+export -f vaultprofile
+
+vaultprofile hadron-loader
 
 function vault_login {
-    echo "${_fmt_r}Unimplemented${_fmt_x}"
-    return
-    vault login -method=ldap -path=???? username=${USER}
+    vault login -method=ldap -path=ldap/troweprice/unix username=${USER}
 }
 export -f vault_login
 
 # Usage:
 #   vault_roleid <project> <component>
+#
+# e.g.
+#   vault_roleid hadron hadron-data-viewer
+#
 function vault_roleid {
-    echo "${_fmt_r}Unimplemented${_fmt_x}"
-    return
     if [ -z "$2" ]
     then
         echo "Usage: vault_roleid <project> <component" >&2
         return 1
     fi
 
-    vault read ????/${1}/role/${2}/role-id
+    vault read auth/approle/troweprice/${1}/role/${2}/role-id
 }
 export -f vault_roleid
 
-
 # Usage:
 #   vault_secretid <project> <component>
+#
+# e.g.
+#   vault_secretid hadron hadron-data-viewer
+#
 function vault_secretid {
-    echo "${_fmt_r}Unimplemented${_fmt_x}"
-    return
     if [ -z "$2" ]
     then
         echo "Usage: vault_secretid <project> <component" >&2
         return 1
     fi
 
-    vault write -f ????/${1}/role/${2}/secret-id
+    vault write -f auth/approle/troweprice/${1}/role/${2}/secret-id
 
     printf "%s===\n=== %sYou must update your VAULT_SECRET_ID export!%s\n===\n%s" $_fmt_g $_fmt_x $_fmt_g $_fmt_x
 }
