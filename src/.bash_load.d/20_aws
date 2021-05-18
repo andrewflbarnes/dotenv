@@ -10,7 +10,7 @@ function awsprofile {
     local profiles=(${_aws_default} $(grep "^\[[a-z-]*]$" ${_aws_credentials} | grep -v "\[default]" | tr -d '[]' | sort))
     local profile_count=${#profiles[@]}
 
-    if [[ -z "${profile}" ]] || [ $((profile_count-profile-1)) -lt 0 ] || [[ ! "${profile}" =~ ^[0-${profile_count}]$ && ! " ${profiles[@]} " =~ " ${profile} " ]]
+    if [[ -z "${profile}" ]] || [ $((profile_count-profile-1)) -lt 0 ] || [[ ! "${profile}" =~ ^[0-9]+$ && ! " ${profiles[@]} " =~ " ${profile} " ]]
     then
         echo "Please provide an existing profile id/name:" >&2
         local i=0
