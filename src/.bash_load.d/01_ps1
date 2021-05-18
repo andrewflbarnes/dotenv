@@ -1,5 +1,40 @@
 #!/usr/bin/env bash
 
+export _ps1_creds=1
+export _ps1_versions=1
+
+function ps1_full {
+  _ps1_creds=1
+  _ps1_versions=1
+}
+export -f ps1_full
+
+function ps1_simple {
+  _ps1_creds=0
+  _ps1_versions=0
+}
+export -f ps1_simple
+
+function ps1_creds {
+  _ps1_creds=1
+}
+export -f ps1_creds
+
+function ps1_nocreds {
+  _ps1_creds=0
+}
+export -f ps1_nocreds
+
+function ps1_versions {
+  _ps1_versions=1
+}
+export -f ps1_versions
+
+function ps1_noversions {
+  _ps1_versions=0
+}
+export -f ps1_noversions
+
 function prompt_command {
   local code=$?
 
@@ -18,7 +53,15 @@ function prompt_command {
   # 10x faster than pyenv version
   local python=$(( [ -n "${PYENV_VERSION}" ] && echo ${PYENV_VERSION} ) || ( [ -r .python-version ] && cat .python-version ) || ( [ -r ~/.pyenv/version ] && cat ~/.pyenv/version ) || echo "system")
 
-  local versions="\[${_fmt_lb}\][java:${java}] [python:${python}]\[${_fmt_x}\]"
+  local node=$(( [ -n "${NVM_BIN}" ] && echo $NVM_BIN | sed 's/.*node\/v\(.*\)\/bin.*/\1/') || echo "system")
+
+  local versions
+  if [ "${_ps1_versions}" -eq 1 ]
+  then
+    versions="\[${_fmt_lb}\][java:${java}] [node:${node}] [python:${python}]\[${_fmt_x}\] "
+  fi
+
+  local vault="\[${_fmt_lw}\][${_vault_loaded:-none}]\[${_fmt_x}\]"
 
   local dir="\[${_fmt_lc}\]{\w}\[${_fmt_x}\]"
 
@@ -60,10 +103,15 @@ function prompt_command {
     jobs="\[${_fmt_dl}\][\j]\[${_fmt_x}\] "
   fi
 
+  local creds
+  if [ ${_ps1_creds} -eq 1 ]
+  then
+    creds="${vault} ${aws} "
+  fi
   
   # Note: optional elements (venv, branch, etc.) should have the space included in their
   # construction if they exist
-  PS1="${venv}${versions} ${aws} ${dir} ${branch}${resp}\n[\t] ${identifier} ${jobs}${doll} "
+  PS1="${venv}${versions}${creds}${dir} ${branch}${resp}\n[\t] ${identifier} ${jobs}${doll} "
 }
 export -f prompt_command
 
@@ -95,14 +143,17 @@ function envinfo {
   fi
   local java=$(( [ -n "${JENV_VERSION}" ] && echo ${JENV_VERSION} ) || ( [ -r .java-version ] && cat .java-version ) || ( [ -r ~/.jenv/version ] && cat ~/.jenv/version ) || echo "system")
   local python=$(( [ -n "${PYENV_VERSION}" ] && echo ${PYENV_VERSION} ) || ( [ -r .python-version ] && cat .python-version ) || ( [ -r ~/.pyenv/version ] && cat ~/.pyenv/version ) || echo "system")
+  local node=$(( [ -n "${NVM_BIN}" ] && echo $NVM_BIN | sed 's/.*node\/v\(.*\)\/bin.*/\1/') || echo "system")
 
-  printf "%-25s ${_fmt_lm}%s${_fmt_x}\n"  "Pipenv:"                 ${VIRTUAL_ENV}
-  printf "%-25s ${_fmt_lb}%s${_fmt_x}\n"  "Java version:"           ${java}
+  printf "%-25s ${_fmt_lm}%s${_fmt_x}\n"  "Pipenv:"                 ${VIRTUAL_ENV:-N/A}
   printf "%-25s ${_fmt_lb}%s${_fmt_x}\n"  "Python version:"         ${python}
+  printf "%-25s ${_fmt_lb}%s${_fmt_x}\n"  "Java version:"           ${java}
+  printf "%-25s ${_fmt_lb}%s${_fmt_x}\n"  "Node version:"           ${node}
+  printf "%-25s ${_fmt_lw}%s${_fmt_x}\n"  "Vault role:"             ${_vault_loaded:-none}
   printf "%-25s ${_fmt_lw}%s${_fmt_x}\n"  "AWS region:"             ${AWS_DEFAULT_REGION:-none}
   printf "%-25s ${_fmt_lw}%s${_fmt_x}\n"  "AWS profile:"            ${AWS_PROFILE:-default}
   printf "%-25s ${_fmt_lc}%s${_fmt_x}\n"  "Working directory:"      $(pwd)
-  printf "%-25s ${_fmt_ly}%s${_fmt_x}\n"  "Git branch:"             $(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+  printf "%-25s ${_fmt_ly}%s${_fmt_x}\n"  "Git branch:"             $(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "N\A")
   printf "%-25s ${_fmt_dl}%s${_fmt_x}\n"  "Jobs:"                   $(jobs -p | wc -l)
   printf "%-25s ${cde_fmt}%s${_fmt_x}\n"  "Exit code (preserved):"  ${code}
 
