@@ -12,7 +12,9 @@ export _fmt_dl=$'\033[2m'
 export _fmt_ic=$'\033[3m'
 # underline
 export _fmt_ue=$'\033[4m'
-# invisible
+# reverse
+export _fmt_re=$'\033[7m'
+# invisible - not working?
 export _fmt_ie=$'\033[8m'
 
 # colours - foreground

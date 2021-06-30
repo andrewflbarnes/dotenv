@@ -2,7 +2,7 @@
 
 export _vault_prefix=".vault."
 export _vault_suffix=""
-export _vault_loaded=""
+export VAULT_PROFILE=""
 export _vault_none="none"
 
 # Usage:
@@ -23,7 +23,7 @@ function vaultprofile {
         local i=0
         for e in ${environments[@]}
         do
-            if [[ "${_vault_loaded}" = "${e}" ]] || [ -z "${_vault_loaded}" -a "${i}" -eq 0 ]
+            if [[ "${VAULT_PROFILE}" = "${e}" ]] || [ -z "${VAULT_PROFILE}" -a "${i}" -eq 0 ]
             then
                 printf -- "- %-4s ${_fmt_g}${e}${_fmt_x}\n" "(${i})" >&2
             else
@@ -36,7 +36,7 @@ function vaultprofile {
 
     if [[ "${environment}" =~ ^(${_vault_none}|0)$ ]]
     then
-        unset _vault_loaded
+        unset VAULT_PROFILE
         unset VAULT_ADDR
         unset VAULT_ROLE_ID
         unset VAULT_SECRET_ID
@@ -49,7 +49,7 @@ function vaultprofile {
             vault_env=${environment}
         fi
         . ${HOME}/${_vault_prefix}${vault_env}${_vault_suffix}
-        export _vault_loaded=${vault_env}
+        export VAULT_PROFILE=${vault_env}
     fi
 }
 export -f vaultprofile

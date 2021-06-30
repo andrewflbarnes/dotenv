@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
-export DEFAULT_PROXY_SCHEME=http
+export _DEFAULT_PROXY_SCHEME=http
 
 # The function can be used to reload proxy settings, both manually and by other functions.
 function proxyr {
-  scheme=${1:-$DEFAULT_PROXY_SCHEME}
+  scheme=${1:-$_DEFAULT_PROXY_SCHEME}
 
-  for proxy in http{,s}_proxy HTTP{,S}_PROXY all_proxy ALL_PROXY
+  for proxy in http{,s}_proxy HTTP{,S}_PROXY all_proxy ALL_PROXY no_proxy NO_PROXY
   do
     eval "unset ${proxy}"
   done
@@ -44,5 +44,5 @@ function proxyenv {
 }
 export -f proxyenv
 
-# we expect the proxy on first load to come from ~/.bash_profile
-_proxy_ensure_scheme
+# Ensure proxies are loaded correctly
+proxyr

@@ -18,10 +18,8 @@ function udf {
     then
         for loadfile in $(find -L ~/.bash*.d -type f -mindepth 1 | sort)
         do
+            echo $loadfile
             awk '
-                BEGIN {
-                    print ARGV[1]
-                }
                 /^function [a-zA-Z]/ {
                     print "- "$2
                 }

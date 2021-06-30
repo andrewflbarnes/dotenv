@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+export _repo_parents="${HOME}/development/repo"
+
+function repo_stat {
+    local cwd=$(pwd -P)
+
+    # Always go back to the calling folder when the function completes
+    trap "cd $cwd" RETURN
+
+    for parent in ${_repo_parents}
+    do
+        cd ${parent}
+        local repos=$(find . -mindepth 1 -maxdepth 1 -type d | sort)
+
+        for repo in ${repos}
+        do
+            cd $repo
+            if [ -d .git ]
+            then
+                echo -e "${_fmt_lc}==>${_fmt_x} ${_fmt_dw}[${parent}]${_fmt_x} ${_fmt_lc}${repo}${_fmt_x}" \
+                    | sed "s|${HOME}|~|g"
+                git status --short --branch
+            fi
+
+            cd ..
+        done
+    done
+}
+export -f repo_stat

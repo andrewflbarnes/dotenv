@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+
+AWS_DEFAULT_REGION=us-east-1
 export _aws_credentials="${HOME}/.aws/credentials"
 
 export _aws_none=none
@@ -75,7 +77,7 @@ function awsregion {
         local i=0
         for p in ${regions[@]}
         do
-            if [[ "${AWS_DEFAULT_REGION}" = "${p}" ]] || [ -z "${AWS_DEFAULT_REGION}" -a "${i}" -eq 0 ]
+            if [[ "${AWS_REGION}" = "${p}" ]] || [ -z "${AWS_REGION}" -a "${i}" -eq 0 ]
             then
                 printf -- "- %-4s ${_fmt_g}${p}${_fmt_x}\n" "(${i})" >&2
             else
@@ -88,12 +90,14 @@ function awsregion {
 
     if [[ "${region}" =~ ^(${_aws_none}|0)$ ]]
     then
-        unset AWS_DEFAULT_REGION
+        unset AWS_REGION
     elif [[ "${region}" =~ ^[0-9]+$ ]]
     then
-        export AWS_DEFAULT_REGION=${regions[region]}
+        export AWS_REGION=${regions[region]}
     else
-        export AWS_DEFAULT_REGION=${region}
+        export AWS_REGION=${region}
     fi
 }
 export -f awsregion
+
+awsregion us-east-1
