@@ -6,6 +6,7 @@ export _vault_suffix=""
 export _vault_none="none"
 export _vault_default_profile=0
 export _vault_token_file=${HOME}/.vault-token
+export _vault_info_file=${HOME}/.vault-info
 
 # Usage:
 #   vaultprofile [ <profile ID> | <profile name> | <env> ]
@@ -211,15 +212,103 @@ function vault_postgres {
 }
 export -f vault_postgres
 
-function vault_secret {
+function vault_as_role {
     if [ -z "${VAULT_PROFILE}" ]
     then
         echo "Please select a vault profile by running vaultprofile" >&2
         return 1
     fi
 
+    local command="$@"
+
+    VAULT_TOKEN=$(_vault_role_token) vault ${command}
+}
+export -f vault_as_role
+
+function vault_secret {
     local endpoint=$1
 
-    VAULT_TOKEN=$(_vault_role_token) vault read ${endpoint}
+    vault_as_role read "${endpoint}"
 }
-export vault_secret
+export -f vault_secret
+
+function _vaultinfo_file {
+    echo "${_vault_info_file}.${VAULT_ENV}"
+}
+export -f _vaultinfo_file
+
+function vaultinfo_refresh {
+    if [ -z "${VAULT_ENV}" ]
+    then
+        echo "A valid vault profile must be set - try running \"vaultprofile\"" >&2
+        return 1
+    fi
+
+    local infofile
+    infofile=$(_vaultinfo_file)
+
+    local policy policies
+    policies=$(vault token lookup -format json | jq -r '.data.policies[]')
+    for policy in $policies
+    do
+        echo "ZZZ $policy"
+        vault policy read $policy
+    done \
+        | awk '
+            /ZZZ/                        { policy=$2 }
+            $1 == "path"                 { printf policy " " $2 }
+            $1 ~ /(capabilities|policy)/ { $1=""; $2=""; print $0 }
+        ' > $infofile
+}
+export -f vaultinfo_refresh
+
+function vaultinfo {
+    if [ -z "${VAULT_ENV}" ]
+    then
+        echo "A valid vault profile must be set - try running \"vaultprofile\"" >&2
+        return 1
+    fi
+
+    local infofile
+    infofile=$(_vaultinfo_file)
+
+    if [ ! -e $infofile ]
+    then
+        echo "No vault info has been fetched for the current environment - try running \"vaultinfo_refresh\"" >&2
+        return 1
+    fi
+
+    {
+        echo "ZZZ Approles:"
+        echo "ZZZ"
+        awk '$2 ~ /^"auth\/approle/ { $1=""; print }' $infofile | sort
+
+        echo "ZZZ"
+        echo "ZZZ DB Creds:"
+        echo "ZZZ"
+        awk '$2 ~ /^"database/ { $1=""; print }' $infofile | sort
+
+        echo "ZZZ"
+        echo "ZZZ Secrets:"
+        echo "ZZZ"
+        awk '$2 ~ /^"secret/ { $1=""; print }' $infofile | sort
+    } \
+        | sed 's/"//g' \
+        | awk '
+            $1 != "ZZZ" {
+                path=$1
+                $1=""
+                printf ($0 ~ "create")  ? "c" : "-"
+                printf ($0 ~ "write")   ? "w" : "-"
+                printf ($0 ~ "read")    ? "r" : "-"
+                printf ($0 ~ "update")  ? "u" : "-"
+                printf ($0 ~ "delete")  ? "d" : "-"
+                printf ($0 ~ "list")    ? "l" : "-"
+                printf ($0 ~ "sudo")    ? "S" : "-"
+                printf ($0 ~ "deny")    ? "D" : "-"
+                printf " " path "\n"
+            }
+            $1 == "ZZZ" { $1=""; print $0 }
+        '
+}
+export -f vaultinfo

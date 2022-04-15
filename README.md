@@ -24,7 +24,7 @@ git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
 jenv enable-plugin export
 
 cat << EOF >> ~/.bash_profile
-[[ -r ~/.bash_load ]]  && . ~/.bash_load
+[[ -r ~/.bashlc ]]  && . ~/.bashlc
 [[ -r ~/.bashrc ]]  && . ~/.bashrc
 EOF
 ```
@@ -41,15 +41,15 @@ mv ~/.npmrc src
 
 ### Adding loader files
 
-Create a new file in `~/.bash_load.d` or `~/.bashrc.d` prefixed with at least one number (this indicates the order
+Create a new file in `~/.bashlc.d` or `~/.bashrc.d` prefixed with at least one number (this indicates the order
 the files are loaded). Add any commands you want then open a new bash shell.
 
 ### Notes
 
-- `.bash_load` should be sourced **before** .bashrc
-- bash config which can be loaded once by an initial shell and exports its configuration should be added to `~/.bash_load.d` e.g. `10_nvm`.
-- bash config which must be loaded by every shell and does not export its configuration should be added to `~/.bashrc.d`.
-- The loader mechanisms should be sourced into `~/.bash_profile`. If it is is overwritten for any reason, say
-because it is a remotely managed file, all that needs to be done is to add the source commands back.
-
-[Screenshot]: ./screenshot.png
+- .bashlc should be sourced **before** .bashrc
+- bash config which can be loaded once by an initial shell and exports its configuration should be added to
+  `~/.bashlc.d` e.g. `10_nvm`
+- bash config which must be loaded by every shell and does not export its configuration should be added to
+- `~/.bashrc.d`.
+- The loader mechanisms should be sourced into `~/.bash_profile` (which itself appears to be remote managed). This
+  will ensure make things a little easier if the system overwrites the file (just add the two `.` source lines back).

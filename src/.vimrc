@@ -32,6 +32,7 @@ set si
 set wrap
 
 syntax enable
+set modeline
+set modelines=5
 
-" delek desert peachpuff ron
 color ron

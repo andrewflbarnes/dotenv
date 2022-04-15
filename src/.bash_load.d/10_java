@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+function srcfind {
+    find ${1} \
+        ! -path "**/.git/**" \
+        ! -path "**/build/**" \
+        ! -path "**/node_modules/**" \
+        ! -path "**/.gradle/**" \
+        -type f \
+        -exec grep \
+        -EHi "$2" {} \; \
+    | sed '
+        s/[^ ]*\/\([^:]*\):/\1 /
+        s/\.java//
+    ' \
+    | awk '{
+        printf "%-50s: ",$1;
+        $1 = "";
+        print $0
+    }' \
+    | grep -Ei --color "$2"
+}
+export -f srcfind

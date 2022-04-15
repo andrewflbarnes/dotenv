@@ -2,4 +2,4 @@
 
 export PIPENV_VENV_IN_PROJECT=1
 export PIPENV_SHELL=/usr/local/bin/bash
-eval "$(pipenv --completion)"
+eval "$(_PIPENV_COMPLETE=bash_source pipenv)"

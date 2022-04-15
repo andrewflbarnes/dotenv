@@ -1,0 +1,57 @@
+// taken from https://stackoverflow.com/questions/57583137/how-to-get-dependencies-size-with-gradle-task-in-android-studio
+
+def listConfigurationDependencies(Configuration configuration) {
+    def formatStr = "%,10.2f"
+
+    def size = configuration.collect { it.length() / (1024 * 1024) }.sum()
+
+    def out = new StringBuffer()
+    out << "\nConfiguration name: \"${configuration.name}\"\n"
+    if (size) {
+        out << 'Total dependencies size:'.padRight(65)
+        out << "${String.format(formatStr, size)} Mb\n\n"
+
+        configuration.sort { -it.length() }
+                .each {
+            out << "${it.name}".padRight(65)
+            out << "${String.format(formatStr, (it.length() / 1024))} kb\n"
+        }
+    } else {
+        out << 'No dependencies found';
+    }
+    println(out)
+}
+
+subprojects {
+  task depsize {
+      group = "Help"
+      description = "Show transitive dependency sizes for default configuration"
+      doLast {
+          listConfigurationDependencies(configurations.default)
+      }
+  }
+
+  task depsizeAllConfigurations {
+      group = "Help"
+      description = "Show transitive dependency sizes for all configurations"
+      doLast {
+          configurations.each {
+              if (it.isCanBeResolved()) {
+                  listConfigurationDependencies(it)
+              }
+          }
+      }
+  }
+
+  task printArtifacts {
+      group = "Help"
+      description = "Print a list of all artifacts generated"
+      doLast {
+          println "Archives:"
+          configurations.archives.allArtifacts.each {
+              println "- ${it.file}"
+              //println "- ${it.type}: ${it.name} ${it.classifier} ${it.extension}"
+          }
+      }
+  }
+}

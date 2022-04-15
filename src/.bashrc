@@ -14,3 +14,5 @@ then
   done
   printf "\033[1A\033[K"
 fi
+
+# sdkman-init.sh default init prevention

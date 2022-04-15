@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+
+function gradle_debug_on {
+    local port=${1:-5005}
+    if [ -z "${GRADLE_OPTS_BACKUP+x}" ]
+    then
+        export GRADLE_OPTS_BACKUP=$GRADLE_OPTS
+    fi
+
+    if [[ "$GRADLE_OPTS" =~ " -Xdebug " ]]
+    then
+        echo "Warning: GRADLE_OPTS already has debug mode enabled: ${GRADLE_OPTS}" >&2
+    else
+        export GRADLE_OPTS="$GRADLE_OPTS -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=${port}"
+        echo "GRADLE_OPTS: ${GRADLE_OPTS}"
+    fi
+}
+export -f gradle_debug_on
+
+function gradle_debug_off {
+    if [ -n "${GRADLE_OPTS_BACKUP+x}" ]
+    then
+        GRADLE_OPTS="$GRADLE_OPTS_BACKUP"
+        unset GRADLE_OPTS_BACKUP
+        echo "Restored GRADLE_OPTS: ${GRADLE_OPTS}"
+    else
+        {
+            echo "Warning: no GRADLE_OPTS_BACKUP found, cannot restore previous options"
+            echo "Current options are: ${GRADLE_OPTS}"
+        } >&2
+    fi
+}
+export -f gradle_debug_off
+
+function gradle_globals {
+    echo "apply from: \"\${System.properties['user.home']}/.global.gradle\"" >> build.gradle
+}
+export -f gradle_globals
+
+function gradlew {
+    local buildfile=".user.build.gradle"
+    local settingsfile=".user.settings.gradle"
+    trap "rm ${buildfile} ${settingsfile}; trap - RETURN" RETURN
+
+    cat build.gradle <(echo "apply from: \"\${System.properties['user.home']}/.global.gradle\"") > ${buildfile}
+    cat settings.gradle <(echo "rootProject.buildFileName = '${buildfile}'") > ${settingsfile}
+
+    ./gradlew --settings-file ${settingsfile} $@
+}
+export -f gradlew
+
+function gradlew_tasks {
+    awk '/^[[:space:]]*task/ { print $2 }' ~/.global.gradle
+}
+export -f gradlew_tasks
+
+function gradle_checkstyle_summary {
+    ./gradlew check -xtest -xjavadoc 2>&1 \
+    | awk '$2 ~ /WARN|ERROR/ {print $3}' \
+    | sed 's/:.*//' \
+    | sort \
+    | uniq -c
+}
+export -f gradle_checkstyle_summary

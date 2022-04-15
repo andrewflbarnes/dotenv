@@ -3,10 +3,12 @@
 function what_colours {
     sed -n '
         /export/ {
-            s/export \(.*\)=.*/\1/
+            s/export //
+            s/=.*033\[/ /
+            s/m$//
             p
         }
-    ' ~/.bash_load.d/00_colours
+    ' ~/.bashlc.d/00_colours
 }
 export -f what_colours
 

@@ -1,8 +1,8 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 dotenv_files=src
 
-function add_dotenv_file() {
+function add_dotenv_file {
     local src=$1
     local file=$(basename ${src})
     local dest_dir=$2
@@ -30,7 +30,7 @@ function add_dotenv_file() {
     ln -s ${src} ${dest}
 }
 
-function add_all_dotenv_files() {
+function add_all_dotenv_files {
     local current=$(pwd -P)
     local files=$(find ${current}/${dotenv_files} -maxdepth 1 -name ".*")
     local dest_dir=${1:-$HOME}
