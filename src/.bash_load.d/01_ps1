@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+function _ps1_is_remote {
+  [[ ${SSH_CLIENT} ]] || [[ ${SSH2_CLIENT} ]] || [[ $(ps -o comm= -p $PPID) =~ sshd ]]
+}
+export -f _ps1_is_remote
+
 export _ps1_creds=1
 export _ps1_versions=1
 
@@ -90,9 +95,9 @@ function prompt_command {
   fi
 
   local identifier
-  if [[ ${SSH_CLIENT} ]] || [[ ${SSH2_CLIENT} ]]
+  if _ps1_is_remote
   then
-    identifier="${user}@\h"
+    identifier="\[${_fmt_lw}${_fmt_re}\]${user}@\h\[${_fmt_x}\]"
   else
     identifier="${user}"
   fi
@@ -134,6 +139,10 @@ export -f ps1_reload
 # keep the colours below in sync with PS1 for easy visual grepping :)
 function envinfo {
   local code=$?
+
+  local hostname
+  hostname=$(hostname)
+
   local cde_fmt
   if [ "0" -eq "${code}" ]
   then
@@ -141,10 +150,19 @@ function envinfo {
   else
     cde_fmt=${_fmt_r}
   fi
+
+  local rem_fmt
+  if _ps1_is_remote
+  then
+    rem_fmt="${_fmt_lw}${_fmt_re}"
+  fi
+
   local java=$(( [ -n "${JENV_VERSION}" ] && echo ${JENV_VERSION} ) || ( [ -r .java-version ] && cat .java-version ) || ( [ -r ~/.jenv/version ] && cat ~/.jenv/version ) || echo "system")
   local python=$(( [ -n "${PYENV_VERSION}" ] && echo ${PYENV_VERSION} ) || ( [ -r .python-version ] && cat .python-version ) || ( [ -r ~/.pyenv/version ] && cat ~/.pyenv/version ) || echo "system")
   local node=$(( [ -n "${NVM_BIN}" ] && echo $NVM_BIN | sed 's/.*node\/v\(.*\)\/bin.*/\1/') || echo "system")
 
+  printf "%-25s ${_fmt_lr}%s${_fmt_x}\n"  "Machine:"                "${hostname}"
+  printf "%-25s ${rem_fmt}%s${_fmt_x}\n"  "Remote:"                 ${rem_fmt:-No}${rem_fmt:+Yes}
   printf "%-25s ${_fmt_lm}%s${_fmt_x}\n"  "Pipenv:"                 ${VIRTUAL_ENV:-N/A}
   printf "%-25s ${_fmt_lb}%s${_fmt_x}\n"  "Python version:"         ${python}
   printf "%-25s ${_fmt_lb}%s${_fmt_x}\n"  "Java version:"           ${java}

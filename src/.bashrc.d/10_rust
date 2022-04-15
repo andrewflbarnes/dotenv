@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
 
+source "$HOME/.cargo/env"
 eval "$(rustup completions bash)"
 eval "$(rustup completions bash cargo)"

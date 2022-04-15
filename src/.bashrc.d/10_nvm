@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 export NVM_DIR="$HOME/.nvm"
-[ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"  # This loads nvm
-#[ -s "/usr/local/opt/nvm/etc/bash_completion.d/nvm" ] && . "/usr/local/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+brew_nvm=$(brew --prefix nvm)
+[ -s "${brew_nvm}/nvm.sh" ] && . "${brew_nvm}/nvm.sh"  # This loads nvm
+[ -s "${brew_nvm}/etc/bash_completion.d/nvm" ] && . "${brew_nvm}/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
 
 

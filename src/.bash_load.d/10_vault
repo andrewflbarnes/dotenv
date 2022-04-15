@@ -1,23 +1,26 @@
 #!/usr/bin/env bash
 
+export VAULT_PROFILE=""
 export _vault_prefix=".vault."
 export _vault_suffix=""
-export VAULT_PROFILE=""
 export _vault_none="none"
+export _vault_default_profile=0
+export _vault_token_file=${HOME}/.vault-token
 
 # Usage:
-#   vaultprofile [ <profile ID> | <profile name> ]
+#   vaultprofile [ <profile ID> | <profile name> | <env> ]
 #
 # e.g.
 #   vaultprofile 1
-#   vaultprofile hadron-deloyer-dev
+#   vaultprofile dev
+#   vaultprofile dev.org.role
 #
 function vaultprofile {
     local environment=${1}
     local environments=(${_vault_none} $(ls ${HOME}/${_vault_prefix}*${_vault_suffix} | xargs -L1 basename | sed "s/^${_vault_prefix}//g;s/${_vault_suffix}/\$/g"))
     local environment_count=${#environments[@]}
 
-    if [[ -z "${environment}" ]] || [ $((environment_count-environment-1)) -lt 0 ] || [[ ! "${environment}" =~ ^[0-9]+$ && ! " ${environments[@]} " =~ " ${environment} " ]]
+    if [[ -z "${environment}" ]] || [[ "${environment}" =~ ^[0-9]+$ && $((environment_count-environment-1)) -lt 0 ]] || [[ ! "${environment}" =~ ^[0-9]+$ && ! " ${environments[@]} " =~ " ${environment} " ]]
     then
         echo "Please provide an existing environment id/name:" >&2
         local i=0
@@ -40,24 +43,125 @@ function vaultprofile {
         unset VAULT_ADDR
         unset VAULT_ROLE_ID
         unset VAULT_SECRET_ID
+        unset VAULT_ENV
+        unset VAULT_ORG
+        unset VAULT_ROLE
     else
         local vault_env
+
         if [[ "${environment}" =~ ^[0-9]+$ ]]
         then
             vault_env=${environments[environment]}
         else
             vault_env=${environment}
         fi
+
         . ${HOME}/${_vault_prefix}${vault_env}${_vault_suffix}
         export VAULT_PROFILE=${vault_env}
+
+        _vault_set_env_token ${VAULT_ENV}
     fi
 }
 export -f vaultprofile
 
-vaultprofile hadron-loader
+function _vault_set_env_token {
+    local env=$1
+    local vault_env_token_file=${HOME}/.vault-token.${env}
+
+    if [ -z "${env}" ]
+    then
+        return
+    fi
+
+    if [ ! -r ${vault_env_token_file} ]
+    then
+        vault_login
+    else
+        mv ${_vault_token_file} ${HOME}/.vault-token.bak
+        cp ${vault_env_token_file} ${_vault_token_file}
+    fi
+}
+export -f _vault_set_env_token
+
+function vault_url {
+    local env=${1,,}
+    if [ -z "${env}" -o "prod" = "${env}" ]
+    then
+        echo "https://vault.troweprice.io:8200"
+    else
+        echo "https://vault.${env}.troweprice.io:8200"
+    fi
+
+}
+export -f vault_url
+
+function vault_setup {
+    local env=${1,,}
+    local org=${2,,}
+    local role=${3,,}
+    # TODO trap and reset
+    local vault_old_addr=${VAULT_ADDR}
+    local vault_old_env=${VAULT_ENV}
+    local vault_url=$(vault_url ${env})
+
+    export VAULT_ADDR=${vault_url}
+    export VAULT_ENV=${env}
+    _vault_set_env_token ${env}
+
+    local vault_file="${HOME}/${_vault_prefix}${env}"
+
+    cat << EOF > ${vault_file}
+export VAULT_ADDR=${vault_url}
+export VAULT_ENV=${env}
+EOF
+
+    if [ -n "${role}" ]
+    then
+        vault_file="${HOME}/${_vault_prefix}${env}.${org}.${role}"
+        local vault_role_id=$(vault_roleid ${org} ${role} | awk '$1=="role_id" {print $2}')
+        local vault_secret_id=$(vault_secretid ${org} ${role} | awk '$1=="secret_id" {print $2}')
+
+        cat << EOF > ${vault_file}
+export VAULT_ADDR=${vault_url}
+export VAULT_ROLE_ID=${vault_role_id}
+export VAULT_SECRET_ID=${vault_secret_id}
+export VAULT_ENV=${env}
+export VAULT_ORG=${org}
+export VAULT_ROLE=${role}
+EOF
+    fi
+
+    export VAULT_ADDR=${vault_old_addr}
+    _vault_set_env_token ${vault_old_env}
+}
+export -f vault_setup
+
+function _vault_role_token {
+    vault \
+        write \
+        -format=json \
+        auth/approle/troweprice/${VAULT_ORG}/login \
+        role_id=$VAULT_ROLE_ID \
+        secret_id=$VAULT_SECRET_ID \
+        | jq -r .auth.client_token
+}
+export -f _vault_role_token
+
+vaultprofile "${_vault_default_profile}"
 
 function vault_login {
-    vault login -method=ldap -path=ldap/troweprice/unix username=${USER}
+    mv ${_vault_token_file} ${HOME}/.vault-token.bak
+
+    local username=$(sed 's/.*\\//' <<< $USER)
+
+    vault login -method=ldap -path=ldap/troweprice/unix username=${username}
+
+    if [ -n "${VAULT_ENV}" ]
+    then
+        local vault_env_token_file=${HOME}/.vault-token.${VAULT_ENV}
+
+        cp ${_vault_token_file} ${vault_env_token_file}
+    fi
 }
 export -f vault_login
 
@@ -96,3 +200,26 @@ function vault_secretid {
     printf "%s===\n=== %sYou must update your VAULT_SECRET_ID export!%s\n===\n%s" $_fmt_g $_fmt_x $_fmt_g $_fmt_x
 }
 export -f vault_secretid
+
+function vault_oracle {
+    vault_secret secret/troweprice/${VAULT_ORG}/${VAULT_ROLE}/hadron_loader_user
+}
+export -f vault_oracle
+
+function vault_postgres {
+    vault_secret database/troweprice/${VAULT_ORG}/${VAULT_ROLE}/creds/hadron_application_user
+}
+export -f vault_postgres
+
+function vault_secret {
+    if [ -z "${VAULT_PROFILE}" ]
+    then
+        echo "Please select a vault profile by running vaultprofile" >&2
+        return 1
+    fi
+
+    local endpoint=$1
+
+    VAULT_TOKEN=$(_vault_role_token) vault read ${endpoint}
+}
+export vault_secret

@@ -2,16 +2,18 @@
 
 # Updates configuration following a brew upgrade docker
 function docker_reup {
-  echo "${_fmt_y}Warning${fmt_x}: You probably didn't want to run this on your system - if you did please enable it in the function definition"
-  return
-  sudo rsync -avu /Applications/Docker.app/Contents/Library/LaunchServices/com.docker.vmnetd /Library/PrivilegedHelperTools/com.docker.vmnetd
-  sudo rsync -avu ~/.dotenv-etc/com.docker.vmnetd.plist /Library/LaunchDaemons/com.docker.vmnetd.plist
-  sudo chown root:wheel /Library/PrivilegedHelperTools/com.docker.vmnetd
-  sudo chown root:wheel /Library/LaunchDaemons/com.docker.vmnetd.plist
-  sudo chmod 544 /Library/PrivilegedHelperTools/com.docker.vmnetd
-  sudo chmod 644 /Library/LaunchDaemons/com.docker.vmnetd.plist
-  sudo launchctl load -Fw /Library/LaunchDaemons/com.docker.vmnetd.plist
+  # sudo rsync -avu /Applications/Docker.app/Contents/Library/LaunchServices/com.docker.vmnetd /Library/PrivilegedHelperTools/com.docker.vmnetd
+  # sudo rsync -avu ~/.dotenv-etc/com.docker.vmnetd.plist /Library/LaunchDaemons/com.docker.vmnetd.plist
+  # sudo chown root:wheel /Library/PrivilegedHelperTools/com.docker.vmnetd
+  # sudo chown root:wheel /Library/LaunchDaemons/com.docker.vmnetd.plist
+  # sudo chmod 544 /Library/PrivilegedHelperTools/com.docker.vmnetd
+  # sudo chmod 644 /Library/LaunchDaemons/com.docker.vmnetd.plist
+  # sudo launchctl load /Library/LaunchDaemons/com.docker.vmnetd.plist
+  # sudo xattr -r -d com.apple.quarantine /Applications/Docker.app
+
   sudo xattr -r -d com.apple.quarantine /Applications/Docker.app
+  sudo /Applications/Docker.app/Contents/MacOS/Docker --install-privileged-components
+  open /Applications/Docker.app
 
   docker_autocompletion
 }

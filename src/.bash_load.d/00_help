@@ -12,6 +12,12 @@ export -f what_colours
 
 # user defined functions => udf
 function udf {
+
+    echo
+    echo "+------------------------+"
+    echo "| User Defined Functions |"
+    echo "+------------------------+"
+    echo
     echo "Note: if you have modified source files with new or renamed functions but not reloaded"
     echo "your terminal then the results below note reflect your actual session"
     if [[ "full" = "${1}" ]]
@@ -28,5 +34,17 @@ function udf {
     else
         find -L ~/.bash*.d -type f -mindepth 1 -exec awk '/^function [a-zA-Z]/{ print "- "$2 }' {} \; | sort
     fi
+
+    echo
+    echo "+-----------+"
+    echo "| Debugging |"
+    echo "+-----------+"
+    echo
+    echo "Enable debugging on supported user defined functions by setting udfdebug=1"
+    echo
+    echo "Configure a debugging fd using code like below in a function"
+    echo "  eval \"\$(debug_fd_open dbg)\""
+    echo "  echo \"This is a debug log\" >&\$dbg"
+    echo
 }
 export -f udf

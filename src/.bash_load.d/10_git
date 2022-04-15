@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-export _repo_parents="${HOME}/development/repo"
+export _repo_parents="${HOME}/development/repos ${HOME}/development/repos/andrewflbarnes"
 
 function repo_stat {
     local cwd=$(pwd -P)

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if [ "${JENV_LOADED:-0}" -ne "1" ]
+if [[ "${JENV_LOADED:-0}" -ne "1" || "$(type -t jenv)" != function ]]
 then
     eval "$(jenv init -)"
     export -f _jenv_export_hook

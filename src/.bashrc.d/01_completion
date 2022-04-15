@@ -1,3 +1,13 @@
 #!/usr/bin/env bash
 
-[[ -r "/usr/local/etc/profile.d/bash_completion.sh" ]] && . "/usr/local/etc/profile.d/bash_completion.sh"
+if [[ "x$SAFE_BASH_COMPLETION_VERSINFO" = "x" ]]
+then
+    unset BASH_COMPLETION_VERSINFO
+    if [[ $OSTYPE = *darwin* ]]
+    then
+        [[ -r "/usr/local/etc/profile.d/bash_completion.sh" ]] && . "/usr/local/etc/profile.d/bash_completion.sh"
+    else
+        [[ -r "/home/linuxbrew/.linuxbrew/etc/profile.d/bash_completion.sh" ]] && . "/home/linuxbrew/.linuxbrew/etc/profile.d/bash_completion.sh"
+    fi
+    export SAFE_BASH_COMPLATION_VERSINFO=$BASH_COMPLETION_VERSINFO
+fi
