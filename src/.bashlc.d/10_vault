@@ -18,7 +18,7 @@ export _vault_info_file=${HOME}/.vault-info
 #
 function vaultprofile {
     local environment=${1}
-    local environments=(${_vault_none} $(ls ${HOME}/${_vault_prefix}*${_vault_suffix} | xargs -L1 basename | sed "s/^${_vault_prefix}//g;s/${_vault_suffix}/\$/g"))
+    local environments=(${_vault_none} $(ls ${HOME}/${_vault_prefix}*${_vault_suffix} 2>/dev/null | xargs -L1 basename | sed "s/^${_vault_prefix}//g;s/${_vault_suffix}/\$/g"))
     local environment_count=${#environments[@]}
 
     if [[ -z "${environment}" ]] || [[ "${environment}" =~ ^[0-9]+$ && $((environment_count-environment-1)) -lt 0 ]] || [[ ! "${environment}" =~ ^[0-9]+$ && ! " ${environments[@]} " =~ " ${environment} " ]]

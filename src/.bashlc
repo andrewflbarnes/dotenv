@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-if [[ -d ~/.bash_load.d ]]
+if [[ -d ~/.bashlc.d ]]
 then
   #echo "Loading login scripts..."
   echo
-  for i in ~/.bash_load.d/*
+  for i in ~/.bashlc.d/*
   do
     [[ -r $i ]] && [[ "` basename $i`" =~ ^[0-9] ]] && {
       printf "\033[1A\033[K"
