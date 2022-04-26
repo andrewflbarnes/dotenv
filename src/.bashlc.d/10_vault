@@ -8,6 +8,12 @@ export _vault_default_profile=0
 export _vault_token_file=${HOME}/.vault-token
 export _vault_info_file=${HOME}/.vault-info
 
+function _vault_environments {
+    local env_prefix=$1
+    ls ${HOME}/${_vault_prefix}${env_prefix}*${_vault_suffix} 2>/dev/null | sed "s/[^[:space:]]*\/${_vault_prefix}\([^[:space:]]*\)${_vault_suffix}/\1/g"
+}
+export -f _vault_environments
+
 # Usage:
 #   vaultprofile [ <profile ID> | <profile name> | <env> ]
 #
@@ -18,7 +24,7 @@ export _vault_info_file=${HOME}/.vault-info
 #
 function vaultprofile {
     local environment=${1}
-    local environments=(${_vault_none} $(ls ${HOME}/${_vault_prefix}*${_vault_suffix} | xargs -L1 basename | sed "s/^${_vault_prefix}//g;s/${_vault_suffix}/\$/g"))
+    local environments=(${_vault_none} $(_vault_environments))
     local environment_count=${#environments[@]}
 
     if [[ -z "${environment}" ]] || [[ "${environment}" =~ ^[0-9]+$ && $((environment_count-environment-1)) -lt 0 ]] || [[ ! "${environment}" =~ ^[0-9]+$ && ! " ${environments[@]} " =~ " ${environment} " ]]
@@ -312,3 +318,19 @@ function vaultinfo {
         '
 }
 export -f vaultinfo
+
+# completion
+function _vaultprofile {
+    local length=${#COMP_WORDS[@]}
+    if [ $length -gt 2 ]
+    then
+        COMPREPLY=()
+        return
+    fi
+
+    local profile_prefix=${COMP_WORDS[1]}
+    local use_none=""
+    [[ "${_vault_none}" =~ "${profile_prefix}"* ]] && use_none=${_vault_none}
+    COMPREPLY=(${use_none} $(_vault_environments ${profile_prefix}))
+}
+complete -F _vaultprofile vaultprofile
