@@ -330,7 +330,7 @@ function _vaultprofile {
 
     local profile_prefix=${COMP_WORDS[1]}
     local use_none=""
-    [[ "${_vault_none}" =~ "${profile_prefix}"* ]] && use_none=${_vault_none}
+    [[ -z "${profile_prefix}" || "${_vault_none}" =~ "${profile_prefix}"* ]] && use_none=${_vault_none}
     COMPREPLY=(${use_none} $(_vault_environments ${profile_prefix}))
 }
 complete -F _vaultprofile vaultprofile
