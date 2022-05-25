@@ -22,7 +22,7 @@ def listConfigurationDependencies(Configuration configuration) {
     println(out)
 }
 
-subprojects {
+allprojects {
   task depsize {
       group = "Help"
       description = "Show transitive dependency sizes for default configuration"
