@@ -123,7 +123,7 @@ export -f prompt_command
 export PROMPT_COMMAND="prompt_command;_jenv_export_hook"
 
 # bit janky :( assumes the filename and location
-export _ps1_load_file="${HOME}/.bash_load.d/01_ps1"
+export _ps1_load_file="${HOME}/.bashlc.d/01_ps1"
 
 function ps1_reload {
   if [ ! -r ${_ps1_load_file} ]
