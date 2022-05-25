@@ -174,10 +174,10 @@ function vault_login {
 export -f vault_login
 
 # Usage:
-#   vault_roleid <project> <component>
+#   vault_roleid <org> <role>
 #
 # e.g.
-#   vault_roleid hadron hadron-data-viewer
+#   vault_roleid kings admin
 #
 function vault_roleid {
     if [ -z "$2" ]
@@ -191,10 +191,10 @@ function vault_roleid {
 export -f vault_roleid
 
 # Usage:
-#   vault_secretid <project> <component>
+#   vault_secretid <org> <role>
 #
 # e.g.
-#   vault_secretid hadron hadron-data-viewer
+#   vault_secretid kings admin
 #
 function vault_secretid {
     if [ -z "$2" ]
