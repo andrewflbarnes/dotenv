@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+function jwt_decode {
+    local token=$1
+
+    if [ -z "$token" ]
+    then
+        echo "Please provide a JWT as the first argument" >&2
+        return
+    fi
+
+    tr '.' '\n' <<< $token \
+        | awk '
+            FNR < 3 {
+                pad=length($1) % 4;
+                printf $1;
+                if (pad > 0) {
+                    printf substr("==", 0, 4 - pad)
+                }
+                printf "\n"
+            }
+        ' \
+        | base64 -d \
+        | jq .
+}
+export -f jwt_decode
