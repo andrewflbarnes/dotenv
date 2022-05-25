@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+function gitsh {
+    local command=$1
+    shift 1
+
+    echo $command $@
+
+    case $command in
+        andrewflbarnes    )
+            gitsh_zglone $command/$1 ${@:2}
+            ;;
+        zglone)
+            gitsh_zglone $@
+            ;;
+        glone)
+            gitsh_glone $@
+            ;;
+        *)
+            echo Unrecognised alias $command
+            ;;
+    esac
+}
+
+function gitsh_zglone {
+    local repo_slug="$1"
+    local repo_folder="${HOME}/development/repo/${repo_slug}"
+
+    gitsh_glone "${repo_slug}" "${repo_folder}" ${@:2}
+}
+
+function gitsh_glone {
+    git clone git@github.com:$1 ${@:2}
+}
+
+gitsh $@
