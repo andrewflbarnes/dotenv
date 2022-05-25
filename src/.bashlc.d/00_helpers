@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+function is_mac {
+  [[ "$OSTYPE" = *darwin* ]]
+}
+export -f is_mac
