@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 export VAULT_PROFILE=""
+export VAULT_COMPANY="andrewfllbarnes"
 export _vault_prefix=".vault."
 export _vault_suffix=""
 export _vault_none="none"
@@ -94,9 +95,9 @@ function vault_url {
     local env=${1,,}
     if [ -z "${env}" -o "prod" = "${env}" ]
     then
-        echo "https://vault.troweprice.io:8200"
+        echo "https://vault.${VAULT_COMPANY}.io:8200"
     else
-        echo "https://vault.${env}.troweprice.io:8200"
+        echo "https://vault.${env}.${VAULT_COMPANY}.io:8200"
     fi
 
 }
@@ -147,7 +148,7 @@ function _vault_role_token {
     vault \
         write \
         -format=json \
-        auth/approle/troweprice/${VAULT_ORG}/login \
+        auth/approle/${VAULT_COMPANY}/${VAULT_ORG}/login \
         role_id=$VAULT_ROLE_ID \
         secret_id=$VAULT_SECRET_ID \
         | jq -r .auth.client_token
@@ -161,7 +162,7 @@ function vault_login {
 
     local username=$(sed 's/.*\\//' <<< $USER)
 
-    vault login -method=ldap -path=ldap/troweprice/unix username=${username}
+    vault login -method=ldap -path=ldap/${VAULT_COMPANY}/unix username=${username}
 
     if [ -n "${VAULT_ENV}" ]
     then
@@ -185,7 +186,7 @@ function vault_roleid {
         return 1
     fi
 
-    vault read auth/approle/troweprice/${1}/role/${2}/role-id
+    vault read auth/approle/${VAULT_COMPANY}/${1}/role/${2}/role-id
 }
 export -f vault_roleid
 
@@ -202,7 +203,7 @@ function vault_secretid {
         return 1
     fi
 
-    vault write -f auth/approle/troweprice/${1}/role/${2}/secret-id
+    vault write -f auth/approle/${VAULT_COMPANY}/${1}/role/${2}/secret-id
 
     printf "%s===\n=== %sYou must update your VAULT_SECRET_ID export!%s\n===\n%s" $_fmt_g $_fmt_x $_fmt_g $_fmt_x
 }
