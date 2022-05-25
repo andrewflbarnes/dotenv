@@ -3,11 +3,13 @@
 if [[ "x$SAFE_BASH_COMPLETION_VERSINFO" = "x" ]]
 then
     unset BASH_COMPLETION_VERSINFO
-    if [[ $OSTYPE = *darwin* ]]
+    if is_mac
     then
-        [[ -r "/usr/local/etc/profile.d/bash_completion.sh" ]] && . "/usr/local/etc/profile.d/bash_completion.sh"
+        completion_location="/usr/local/etc/profile.d/bash_completion.sh"
     else
-        [[ -r "/home/linuxbrew/.linuxbrew/etc/profile.d/bash_completion.sh" ]] && . "/home/linuxbrew/.linuxbrew/etc/profile.d/bash_completion.sh"
+        completion_location="/home/linuxbrew/.linuxbrew/etc/profile.d/bash_completion.sh"
     fi
+    [[ -r "${completion_location}" ]] && . "${completion_location}"
+    unset completion_location
     export SAFE_BASH_COMPLATION_VERSINFO=$BASH_COMPLETION_VERSINFO
 fi
