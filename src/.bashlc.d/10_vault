@@ -208,16 +208,6 @@ function vault_secretid {
 }
 export -f vault_secretid
 
-function vault_oracle {
-    vault_secret secret/troweprice/${VAULT_ORG}/${VAULT_ROLE}/hadron_loader_user
-}
-export -f vault_oracle
-
-function vault_postgres {
-    vault_secret database/troweprice/${VAULT_ORG}/${VAULT_ROLE}/creds/hadron_application_user
-}
-export -f vault_postgres
-
 function vault_as_role {
     if [ -z "${VAULT_PROFILE}" ]
     then
@@ -230,13 +220,6 @@ function vault_as_role {
     VAULT_TOKEN=$(_vault_role_token) vault ${command}
 }
 export -f vault_as_role
-
-function vault_secret {
-    local endpoint=$1
-
-    vault_as_role read "${endpoint}"
-}
-export -f vault_secret
 
 function _vaultinfo_file {
     echo "${_vault_info_file}.${VAULT_ENV}"
@@ -330,7 +313,7 @@ function _vaultprofile {
 
     local profile_prefix=${COMP_WORDS[1]}
     local use_none=""
-    [[ "${_vault_none}" =~ "${profile_prefix}"* ]] && use_none=${_vault_none}
+    [[ -z "${profile_prefix}" || "${_vault_none}" =~ "${profile_prefix}"* ]] && use_none=${_vault_none}
     COMPREPLY=(${use_none} $(_vault_environments ${profile_prefix}))
 }
-complete -F _vaultprofile vaultprofile
+export -f _vaultprofile
