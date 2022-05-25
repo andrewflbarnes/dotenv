@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+function wttr {
+    curl wttr.in/$1?format=$2
+}
+export -f wttr
