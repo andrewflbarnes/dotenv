@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-export GOPATH=~/development/go
+export GOPATH="${FOLDER_DEV}/go"
 export PATH=$PATH:$GOPATH/bin
