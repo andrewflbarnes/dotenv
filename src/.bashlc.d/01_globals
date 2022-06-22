@@ -2,6 +2,14 @@
 
 export EDITOR=vim
 
+export PATH="/usr/local/sbin:$PATH"
+
+export DEVHOME="${HOME}"
+export FOLDER_DEV="${DEVHOME}/development"
+export FOLDER_DEVTOOLS="${FOLDER_DEV}/tools"
+export FOLDER_DEVREPOS="${FOLDER_DEV}/repos"
+export FOLDER_DEVCONFIG="${FOLDER_DEV}/config"
+
 function finder_show_all_files {
     local set=$1
 
