@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+if type -t exa >/dev/null
+then
+    alias ls='exa'
+fi
