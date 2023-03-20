@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+
+declare -A __docker_throwaway=(
+    ["deno"]="denoland/deno:distroless-1.24.0 --"
+    ["node"]="node:18-slim"
+    ["busybox"]="busybox:1.35"
+    ["oci-builder"]="docker-release-local.docker.awstrp.net/com/trp/ea/unity-base-docker/trp-oci-builder/trp-oci-builder:2.1.1 sh"
+)
+export __docker_throwaway
+
+function _docker_throwaways {
+    local prefix=$1
+    echo ${!__docker_throwaway[@]} | xargs -n1 | grep "^$prefix" | sort
+}
+export -f _docker_throwaways
+
+function _docker_throwaway_help {
+    echo "Syntax:"
+    echo "  docker_throwaway TYPE"
+    echo
+    echo "Where:"
+    echo "  TYPE is one of the throwaways to run:"
+    local throwaway throwaways
+    throwaways=$(_docker_throwaways)
+    for throwaway in $throwaways
+    do
+        echo "  - $throwaway"
+    done
+}
+export -f _docker_throwaway_help
+
+function docker_throwaway {
+    local type=${1,,}
+
+    if [ -z "$type" ]
+    then
+        {
+            echo "No type provided"
+            echo
+            _docker_throwaway_help
+        } >&2
+        return
+    fi
+
+    local image opts
+    read image opts <<< "${__docker_throwaway[$type]}"
+
+    if [ -z "$image" ]
+    then
+        {
+            echo "Invalid type provided"
+            echo
+            _docker_throwaway_help
+        } >&2
+        return
+    fi
+
+    local now=$(now)
+    local container="${type}_${now}"
+
+    docker run -it --rm --name $container $image $opts
+}
+export -f docker_throwaway
+
+# completion
+function _docker_throwaway {
+    local length=${#COMP_WORDS[@]}
+    if [ $length -gt 2 ]
+    then
+        COMPREPLY=()
+        return
+    fi
+
+    local throwaway_prefix=${COMP_WORDS[1]}
+    COMPREPLY=($(_docker_throwaways $throwaway_prefix))
+}
+export -f _docker_throwaway
