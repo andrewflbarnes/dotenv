@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+
+function sdk_vendor {
+    local candidate=${1,,}
+    local vendor=${2,,}
+
+    if [ -z "$vendor" ]
+    then
+        {
+            echo "USAGE:"
+            echo "  sdk_vendor CANDIDATE VENDOR"
+            echo
+            echo "Prints the latest available major versions of candidate for the vendor."
+            echo
+            echo "Example:"
+            echo "  sdk_vendor java Corretto"
+        } >&2
+        return
+    fi
+
+    sdk ls "$candidate" \
+        | awk -v vendor="$vendor" '
+            {
+                FS="|"
+                $0=$0
+                gsub(" ","")
+                this_vendor=tolower($1)
+            }
+
+            this_vendor == vendor {
+                found=1
+            }
+
+            this_vendor !~ "^("vendor")?$" {
+                found=0
+            }
+
+            found == 1 {
+                FS="."
+                $0=$6
+                if (!x[$1]++) {
+                    print $0
+                }
+            }
+        '
+}
+export -f sdk_vendor
+
+function sdk_vendors {
+    local candidate=${1,,}
+
+    if [ -z "$candidate" ]
+    then
+        {
+            echo "USAGE:"
+            echo "  sdk_vendors CANDIDATE"
+            echo
+            echo "Example:"
+            echo "  sdk_vendors java"
+        } >&2
+        return
+    fi
+
+    sdk ls "$candidate" \
+        | awk '
+            BEGIN {
+                FS="|"
+            }
+
+            {
+                gsub(" ","")
+            }
+
+            /^====/ {
+                found=0
+            }
+
+            $1 ~ /./ && found == 1 {
+                print $1
+            }
+
+            /^----/ {
+                found=1
+            }
+        '
+}
+export -f sdk_vendors
