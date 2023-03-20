@@ -1,16 +1,20 @@
 #!/usr/bin/env bash
 
-dotenv_files=src
+cwd="$(readlink -f $0 | xargs dirname)"
+dotenv_files="$cwd/src"
+dotenv_dest="$HOME"
+shim_files="$cwd/shims"
+dotbin_dest="$HOME/dotbin"
+
 padding=75
 now=$(date "+%Y%m%d%H%M%S")
 
-function add_dotenv_file {
-    local src file dest_dir dest force
-    src=$1
-    file=$(basename "${src}")
-    dest_dir=$2
-    dest=${dest_dir}/${file}
-    force=$3
+function add_ln {
+    local src=$1
+    local dest_dir=$2
+    local file=$3
+    local dest="${dest_dir}/${file}"
+    local force=$4
 
     if [ ! -e "${src}" ] || [ ! -d "${dest_dir}" ]
     then
@@ -30,7 +34,7 @@ function add_dotenv_file {
         if [ -e "${dest}" ]
         then
             printf "\033[33m%-${padding}s\033[0m: %s\n" "The destination symlink already exists" "${dest}" >& 2
-            return 0
+            return 4
         else
             printf "\033[31m%-${padding}s\033[0m: %s -> %s\n" "The destination symlink already exists but is to a non-existent file" "${dest}" "$(readlink "${dest}")" >& 2
             return 2
@@ -43,21 +47,65 @@ function add_dotenv_file {
         return 3
     fi
 
-    printf "\033[32m%-${padding}s: %s\n" "Linked file to ${dest_dir}: " "${src}" >& 2
     ln -s "${src}" "${dest}"
 }
 
-function add_all_dotenv_files {
-    local current files dest_dir force
-    current=$(pwd -P)
-    files=$(find "${current}"/${dotenv_files} -maxdepth 1 -name ".*")
-    dest_dir=${1:-$HOME}
-    force=$2
+function add_dotenv_file {
+    local src=$1
+    local dest_dir=$2
+    local force=$3
 
+    local file
+    file=$(basename "${src}")
+
+    if add_ln "$src" "$dest_dir" "$file" "$force"
+    then
+        printf "\033[32m%-${padding}s: %s\n" "Linked file to ${dest_dir}: " "${src}" >& 2
+    fi
+}
+
+function add_all_dotenv_files {
+    local force=$1
+
+    local files
+    files=$(find ${dotenv_files} -maxdepth 1 -name ".*" | sort)
+
+    local file
     for file in ${files}
     do
-        add_dotenv_file "${file}" "${dest_dir}" "${force}"
+        add_dotenv_file "${file}" "${dotenv_dest}" "${force}"
     done
 }
 
-add_all_dotenv_files "${HOME}" "$@"
+function add_all_shims {
+    local force=$1
+
+    if ! [ -d "${shim_files}" ]
+    then
+        printf "\033[31m%-${padding}s\033[0m: %s\n" "No shim source folder exists" "${shim_files}" >& 2
+        return
+    fi
+
+    local files
+    files=$(find ${shim_files} -maxdepth 1 -mindepth 1 | sort)
+
+    local file
+    for file in ${files}
+    do
+        add_dotenv_file "${file}" "${dotbin_dest}" "${force}"
+    done
+}
+
+function add_alias {
+    local prog=$1
+    local alias=$2
+
+    if add_ln "$prog" "$dotbin_dest" "$alias" "$force"
+    then
+        printf "\033[32m%-${padding}s: %s\n" "Linked alias to ${alias}: " "${prog}" >& 2
+    fi
+}
+
+add_all_dotenv_files "$@"
+mkdir -p "$dotbin_dest"
+add_all_shims "$@"
