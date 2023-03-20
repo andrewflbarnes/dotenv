@@ -1,0 +1,162 @@
+#!/usr/bin/env bash
+
+# If enabled condenses submodule command completion to just submodule names when current token is blank
+_gradle_completion_condense=0
+
+function gradle_completion_condense {
+    if [ -n "$_gradle_completion_condense" ] && [[ "$_gradle_completion_condense" != "0" ]]
+    then
+        _gradle_completion_condense=0
+        echo Gradle completion condensation is disabled
+    else
+        _gradle_completion_condense=1
+        echo Gradle completion condensation is enabled
+    fi
+}
+
+# If enabled allows case insensitive matching on tasks
+_gradle_completion_case_insensitive=1
+
+function gradle_completion_insensitive {
+    if [ -n "$_gradle_completion_case_insensitive" ] && [[ "$_gradle_completion_case_insensitive" != "0" ]]
+    then
+        _gradle_completion_case_insensitive=0
+        echo Gradle completion case insensitivity is disabled
+    else
+        _gradle_completion_case_insensitive=1
+        echo Gradle completion case insensitivity is enabled
+    fi
+}
+
+_gradle_completion_opts="
+--dry-run
+--exclude
+-x
+
+--refresh-depedencies
+
+--quiet
+-q
+--info
+--debug
+--stacktrace
+"
+
+# top level tasks
+_gradle_completion_tasks="
+init
+wrapper
+
+help
+dependencies
+projects
+properties
+tasks
+"
+
+# module/submodule tasks
+_gradle_completion_mod_tasks="
+version
+
+clean
+processResources
+compileJava
+classes
+checkstyleMain
+assemble
+processTestResources
+compileTestJava
+testClasses
+checkstyleTest
+test
+check
+jar
+bootRun
+bootJar
+build
+buildDependents
+buildNeeded
+
+javadoc
+
+publishToMavenLocal
+"
+
+function _gradle_completion_case_resolve {
+    local original="$@"
+
+    if [ -n "$_gradle_completion_case_insensitive" ] && [[ "$_gradle_completion_case_insensitive" != "0" ]]
+    then
+        tr '[A-Z]' '[a-z]' <<< "$original"
+    else
+        echo $original
+    fi
+}
+
+function _gradle_completion_filter_opts {
+    local prefix=$1
+    local opts
+    opts=$(eval "echo \$$2")
+    _gradle_completion_filter "$prefix" $opts
+}
+
+function _gradle_completion_filter {
+    local prefix=$1
+    shift
+    local opts="$@"
+
+    if [ -z "$prefix" ]
+    then
+        echo "$opts"
+        return
+    fi
+
+    if [ -n "$_gradle_completion_case_insensitive" ] && [[ "$_gradle_completion_case_insensitive" != "0" ]]
+    then
+        tr ' ' '\n' <<< "$opts" | awk -v prefix=$prefix 'tolower($0) ~ tolower("^"prefix)'
+    else
+        compgen -W "$opts" -- $prefix
+    fi
+}
+
+function _gradle {
+    local cur
+    _get_comp_words_by_ref -n : cur
+    local comm_prefix=$(_gradle_completion_case_resolve "$cur")
+    local prefix
+    prefix=$(sed 's/:.*//' <<< $comm_prefix)
+    local submodule submodules subcommand subcommands mod_task
+    if [ -f settings.gradle ]
+    then
+        # if no current token is empty and condense enabled only show ":" suffixed submodule
+        # otherwise show all submodule commands
+        if [ -z "$prefix" ] && [ -n "$_gradle_completion_condense" ] && [[ "$_gradle_completion_condense" != "0" ]]
+        then
+            for submodule in $(awk '$1 == "include" { gsub("'"'"'", "", $2); print $2 }' settings.gradle)
+            do
+                subcommands="$subcommands $submodule:"
+            done
+        else
+            submodules=$(awk -v prefix="^['\"]?$prefix" '$1 == "include" && $2 ~ prefix { gsub("'"'"'", "", $2); print $2 }' settings.gradle)
+            for submodule in $submodules
+            do
+                for mod_task in $_gradle_completion_mod_tasks
+                do
+                    subcommand="$submodule:$mod_task"
+                    subcommands="$subcommands $submodule:$mod_task"
+                done
+            done
+        fi
+    fi
+
+    local opts tasks mod_tasks
+    opts=$(_gradle_completion_filter_opts "$comm_prefix" _gradle_completion_opts)
+    tasks=$(_gradle_completion_filter_opts "$comm_prefix" _gradle_completion_tasks)
+    mod_tasks=$(_gradle_completion_filter_opts "$comm_prefix" _gradle_completion_mod_tasks)
+    subcommands=$(_gradle_completion_filter "$comm_prefix" $subcommands)
+    COMPREPLY=($opts $tasks $mod_tasks $subcommands)
+    __ltrim_colon_completions "$comm_prefix"
+}
+
+complete -o nosort -F _gradle gradle
+complete -o nosort -F _gradle ./gradlew
