@@ -1,10 +1,38 @@
 #!/usr/bin/env bash
 
+function _vault_cubbify_help {
+    echo "SYNTAX: vault_cubbify <command> <endpoint> <key>"
+    echo " WHERE:"
+    echo " - command is the vault command i.e. read or write"
+    echo " - endpoint is the vault endpoint to read/write secrets to"
+    echo " - key is the key to store the secrets in the cubbyhole under"
+    echo
+    echo "For example:"
+    echo "vault_cubbify read database/org/role/creds/org_role db-role-creds"
+    echo
+    echo "The above will"
+    echo " - read the secrets stored/generated at the database/org/role/creds/org_role endpoint"
+    echo " - save the secrets and all associated metadata to cubbyhole/db-role-creds"
+    echo
+    echo "The data can now be read with"
+    echo " vault read cubbyhole/db-role-creds"
+    echo
+    echo "This is intended for saving dynamically created credentials and other similar secrets"
+    echo "where each read/write generates a new credential."
+}
+export -f _vault_cubbify_help
+
 # execute a vault command then store the results in cubbyhole under the requested key
 function vault_cubbify {
     local comm=$1
     local endpoint=$2
     local key=$3
+
+    if [ -z "$key" ]
+    then
+        _vault_cubbify_help >&2
+        return 1
+    fi
 
     local content
     content=$(eval "vault $comm -format table $endpoint" | awk 'NR > 2 { printf $1"="$2" " }' )

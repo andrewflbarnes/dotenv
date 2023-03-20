@@ -2,7 +2,7 @@
 
 export EDITOR=vim
 
-export PATH="/usr/local/sbin:$PATH"
+export PATH="$HOME/dotbin:/usr/local/sbin:$PATH"
 
 export DEVHOME="${HOME}"
 export FOLDER_DEV="${DEVHOME}/development"

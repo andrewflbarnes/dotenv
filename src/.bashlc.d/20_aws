@@ -7,6 +7,12 @@ export _aws_credentials="${HOME}/.aws/credentials"
 export _aws_none=none
 export _aws_default=default
 
+function _awsprofiles {
+    local prefix=$1
+    sed -n '/^\[/{s/[][]*//g;p;}' "${_aws_credentials}" | grep "^$prefix" | grep -v "^${_aws_default}$" | sort
+}
+export -f _awsprofiles
+
 function awsprofile {
     local profile=$1
     local profiles=(${_aws_default} $(grep "^\[[a-z-]*]$" ${_aws_credentials} | grep -v "\[default]" | tr -d '[]' | sort))
@@ -41,6 +47,22 @@ function awsprofile {
 }
 export -f awsprofile
 
+# completion
+function _awsprofile {
+    local length=${#COMP_WORDS[@]}
+    if [ $length -gt 2 ]
+    then
+        COMPREPLY=()
+        return
+    fi
+
+    local profile_prefix=${COMP_WORDS[1]}
+    local use_default=""
+    [[ -z "${profile_prefix}" || "${_aws_default}" =~ ^${profile_prefix}.* ]] && use_default=${_aws_default}
+    COMPREPLY=(${use_default} $(_awsprofiles $profile_prefix))
+}
+export -f _awsprofile
+
 export _aws_regions=(
 ${_aws_none}
 af-south-1
@@ -65,6 +87,12 @@ us-east-2
 us-west-1
 us-west-2
 )
+
+function _awsregions {
+    local prefix=$1
+    printf "%s\n" "${_aws_regions[@]}" | grep "^$prefix" |  grep -v "^${_aws_none}$" | sort
+}
+export -f _awsregions
 
 function awsregion {
     local region=$1
@@ -99,5 +127,21 @@ function awsregion {
     fi
 }
 export -f awsregion
+
+# completion
+function _awsregion {
+    local length=${#COMP_WORDS[@]}
+    if [ $length -gt 2 ]
+    then
+        COMPREPLY=()
+        return
+    fi
+
+    local region_prefix=${COMP_WORDS[1]}
+    local use_none=""
+    [[ -z "${region_prefix}" || "${_aws_none}" =~ ^${region_prefix}.* ]] && use_none=${_aws_none}
+    COMPREPLY=(${use_none} $(_awsregions $region_prefix))
+}
+export -f _awsregion
 
 awsregion us-east-1

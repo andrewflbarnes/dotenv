@@ -369,33 +369,14 @@ function vaultinfo {
 }
 export -f vaultinfo
 
-function vault_setup_all {
-    local org=$1
-    local env=$VAULT_ENV
-    local role
-    local roles
+function vault_setup_env {
+    local env=$1
 
-    roles=$(vault list auth/approle/$VAULT_COMPANY/$org/role/ | tail -n+3)
-
-    for role in $roles
-    do
-        echo "Setting up $env $org $role"
-        vault_setup $env $org $role
-    done
-}
-export -f vault_setup_all
-
-function vault_setup_allenvs {
-    local old_profile=$VAULT_PROFILE
-    local env
-    local disp_pol disp_role
-    for env in dev sit stage prod
-    do
-        echo "${_fmt_bd}${_fmt_g}== Environment: ${env} ==${_fmt_x}"
-
+    (
         _vault_use_env $env
 
         local policy
+        local disp_pol disp_role
         for policy in $(_vault_policies)
         do
             disp_pol=$(echo "${_fmt_bd}${_fmt_c}${policy}${_fmt_x}")
@@ -417,11 +398,19 @@ function vault_setup_allenvs {
                 fi
             done
         done
-    done
-
-    [ -n "${old_profile}" ] && vaultprofile $old_profile
+    )
 }
-export -f vault_setup_allenvs
+export -f vault_setup_env
+
+function vault_setup_all {
+    local env
+    for env in dev sit stage prod
+    do
+        echo "${_fmt_bd}${_fmt_g}== Environment: ${env} ==${_fmt_x}"
+        vault_setup_env "$env"
+    done
+}
+export -f vault_setup_all
 
 function _vault_use_env {
     local env="$1"
@@ -452,7 +441,6 @@ function _vault_ensure_logged_in {
     fi
 }
 export -f _vault_ensure_logged_in
-
 
 # completion
 function _vaultprofile {

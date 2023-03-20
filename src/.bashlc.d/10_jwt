@@ -9,6 +9,7 @@ function jwt_decode {
         return
     fi
 
+    local line
     tr '.' '\n' <<< $token \
         | awk '
             FNR < 3 {
@@ -20,7 +21,9 @@ function jwt_decode {
                 printf "\n"
             }
         ' \
-        | base64 -d \
-        | jq .
+        | while read line
+        do
+            base64 -D <<< "$line" | jq .
+        done
 }
 export -f jwt_decode

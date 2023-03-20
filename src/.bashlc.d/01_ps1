@@ -5,6 +5,10 @@ function _ps1_is_remote {
 }
 export -f _ps1_is_remote
 
+###########
+# Toggles #
+###########
+
 export _ps1_creds=1
 export _ps1_versions=1
 
@@ -40,6 +44,52 @@ function ps1_noversions {
 }
 export -f ps1_noversions
 
+############
+# Versions #
+############
+
+function _ps1_java_version {
+  # 50-60x faster than jenv version
+  ( [ -n "${JENV_VERSION}" ] && echo ${JENV_VERSION} ) || \
+      _ps1_java_version_file || \
+      ( [ -r ~/.jenv/version ] && cat ~/.jenv/version ) || \
+      echo "system"
+}
+export -f _ps1_java_version
+
+function _ps1_java_version_file {
+    local wdir
+    wdir=$(pwd)
+    while [ ${#wdir} -gt 1 ]
+    do
+        if [ -r ${wdir}/.java-version ]
+        then
+            cat ${wdir}/.java-version
+            return 0
+        else
+            wdir=$(dirname $wdir)
+        fi
+    done
+
+    [ -r /.java-version ] && cat /.java-version
+}
+export -f _ps1_java_version_file
+
+function _ps1_python_version {
+  # 10x faster than pyenv version
+  ( [ -n "${PYENV_VERSION}" ] && echo ${PYENV_VERSION} ) || ( [ -r .python-version ] && cat .python-version ) || ( [ -r ${PYENV_ROOT}/version ] && cat ${PYENV_ROOT}/version ) || echo "system"
+}
+export -f _ps1_python_version
+
+function _ps1_node_version {
+  fnm current | sed 's/^v//'
+}
+export -f _ps1_node_version
+
+##################
+# Prompt command #
+##################
+
 function prompt_command {
   local code=$?
 
@@ -52,13 +102,11 @@ function prompt_command {
 
   local aws="\[${_fmt_lw}\][${AWS_REGION:-none}:${AWS_PROFILE:-default}]\[${_fmt_x}\]"
 
-  # 50-60x faster than jenv version
-  local java=$(( [ -n "${JENV_VERSION}" ] && echo ${JENV_VERSION} ) || ( [ -r .java-version ] && cat .java-version ) || ( [ -r ~/.jenv/version ] && cat ~/.jenv/version ) || echo "system")
+  local java=$(_ps1_java_version)
 
-  # 10x faster than pyenv version
-  local python=$(( [ -n "${PYENV_VERSION}" ] && echo ${PYENV_VERSION} ) || ( [ -r .python-version ] && cat .python-version ) || ( [ -r ~/.pyenv/version ] && cat ~/.pyenv/version ) || echo "system")
+  local python=$(_ps1_python_version)
 
-  local node=$(fnm current | sed 's/^v//')
+  local node=$(_ps1_node_version)
 
   local versions
   if [ "${_ps1_versions}" -eq 1 ]
@@ -116,11 +164,15 @@ function prompt_command {
   
   # Note: optional elements (venv, branch, etc.) should have the space included in their
   # construction if they exist
-  PS1="${venv}${versions}${creds}${dir} ${branch}${resp}\n[\t] ${identifier} ${jobs}${doll} "
+  PS1="${_fmt_x}${venv}${versions}${creds}${dir} ${branch}${resp}\n[\t] ${identifier} ${jobs}${doll} "
 }
 export -f prompt_command
 
 export PROMPT_COMMAND="prompt_command;_jenv_export_hook"
+
+##############
+# PS1 reload #
+##############
 
 # bit janky :( assumes the filename and location
 export _ps1_load_file="${HOME}/.bashlc.d/01_ps1"
@@ -135,6 +187,10 @@ function ps1_reload {
   . ${_ps1_load_file}
 }
 export -f ps1_reload
+
+############
+# Env Info #
+############
 
 # keep the colours below in sync with PS1 for easy visual grepping :)
 function envinfo {
@@ -157,9 +213,9 @@ function envinfo {
     rem_fmt="${_fmt_lw}${_fmt_re}"
   fi
 
-  local java=$(( [ -n "${JENV_VERSION}" ] && echo ${JENV_VERSION} ) || ( [ -r .java-version ] && cat .java-version ) || ( [ -r ~/.jenv/version ] && cat ~/.jenv/version ) || echo "system")
-  local python=$(( [ -n "${PYENV_VERSION}" ] && echo ${PYENV_VERSION} ) || ( [ -r .python-version ] && cat .python-version ) || ( [ -r ~/.pyenv/version ] && cat ~/.pyenv/version ) || echo "system")
-  local node=$(fnm current | sed 's/^v//')
+  local java=$(_ps1_java_version)
+  local python=$(_ps1_python_version)
+  local node=$(_ps1_node_version)
 
   printf "%-25s ${_fmt_lr}%s${_fmt_x}\n"  "Machine:"                "${hostname}"
   printf "%-25s ${rem_fmt}%s${_fmt_x}\n"  "Remote:"                 ${rem_fmt:-No}${rem_fmt:+Yes}

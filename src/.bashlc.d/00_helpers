@@ -4,3 +4,8 @@ function is_mac {
   [[ "$OSTYPE" = *darwin* ]]
 }
 export -f is_mac
+
+function is_m1 {
+  is_mac && [[ "$(uname -m)" = "arm64" ]]
+}
+export -f is_m1
