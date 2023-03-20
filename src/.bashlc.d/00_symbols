@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+export _sym_dot=$'\xe2\x97\x8f'
