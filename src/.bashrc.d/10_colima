@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+if type -t colima &>/dev/null
+then
+  eval "$(colima completion bash)"
+fi
