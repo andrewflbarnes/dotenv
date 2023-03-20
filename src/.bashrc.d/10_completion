@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+complete -o nosort -F _awsprofile awsprofile
+complete -o nosort -F _awsregion awsregion
+complete -F _docker_throwaway docker_throwaway
+complete -o nosort -F _vaultprofile vaultprofile
