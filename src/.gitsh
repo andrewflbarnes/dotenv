@@ -4,17 +4,15 @@ function gitsh {
     local command=$1
     shift 1
 
-    echo $command $@
-
     case $command in
-        andrewflbarnes    )
-            gitsh_zglone $command/$1 ${@:2}
+        andrewflbarnes)
+            local repo=$1
+            shift 1
+            local slug="$command/$repo"
+            gitsh_repo_clone github.com "$slug" $@
             ;;
-        zglone)
-            gitsh_zglone $@
-            ;;
-        glone)
-            gitsh_glone $@
+        github)
+            gitsh_repo_clone github.com $@
             ;;
         *)
             echo Unrecognised alias $command
@@ -22,15 +20,13 @@ function gitsh {
     esac
 }
 
-function gitsh_zglone {
-    local repo_slug="$1"
-    local repo_folder="${HOME}/development/repo/${repo_slug}"
+function gitsh_repo_clone {
+    local host=$1
+    local slug=$2
+    shift 2
+    local out="$HOME/development/repo/$host/$slug"
 
-    gitsh_glone "${repo_slug}" "${repo_folder}" ${@:2}
-}
-
-function gitsh_glone {
-    git clone git@github.com:$1 ${@:2}
+    git clone "git@${host}:${slug}" "$out" $@
 }
 
 gitsh $@

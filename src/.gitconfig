@@ -21,6 +21,7 @@
     rv = remote -v
     st = status --short --branch
     andrewflbarnes = !bash ~/.gitsh andrewflbarnes
+    hub = !bash ~/.gitsh github
 [credential]
     helper = osxkeychain
 [pull]
