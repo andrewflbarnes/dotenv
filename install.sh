@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
-
-cwd="$(readlink -f $0 | xargs dirname)"
+(
+set -e
+cwd="$(realpath $0 | xargs dirname)"
 dotenv_files="$cwd/src"
+[ -d "$dotenv_files" ]
 dotenv_dest="$HOME"
 shim_files="$cwd/shims"
 dotbin_dest="$HOME/dotbin"
@@ -82,7 +84,7 @@ function add_all_shims {
 
     if ! [ -d "${shim_files}" ]
     then
-        printf "\033[31m%-${padding}s\033[0m: %s\n" "No shim source folder exists" "${shim_files}" >& 2
+        printf "\033[33m%-${padding}s\033[0m: %s\n" "No shim source folder exists" "${shim_files}" >& 2
         return
     fi
 
@@ -109,3 +111,4 @@ function add_alias {
 add_all_dotenv_files "$@"
 mkdir -p "$dotbin_dest"
 add_all_shims "$@"
+)
