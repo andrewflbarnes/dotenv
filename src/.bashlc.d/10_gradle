@@ -37,17 +37,24 @@ function gradle_globals {
 }
 export -f gradle_globals
 
-function gradlew {
+function ggradle {
     local buildfile=".user.build.gradle"
     local settingsfile=".user.settings.gradle"
-    trap "rm ${buildfile} ${settingsfile}; trap - RETURN" RETURN
-
-    cat build.gradle <(echo "apply from: \"\${System.properties['user.home']}/.global.gradle\"") > ${buildfile}
-    cat settings.gradle <(echo "rootProject.buildFileName = '${buildfile}'") > ${settingsfile}
+    (
+    {
+        cat build.gradle
+        echo "apply from: \"\${System.properties['user.home']}/.global.gradle\""
+    } > ${buildfile}
+    {
+        cat settings.gradle
+        echo "rootProject.buildFileName = '${buildfile}'"
+    } > ${settingsfile}
 
     ./gradlew --settings-file ${settingsfile} $@
+    )
+    rm ${buildfile} ${settingsfile}
 }
-export -f gradlew
+export -f ggradle
 
 function gradlew_tasks {
     awk '/^[[:space:]]*task/ { print $2 }' ~/.global.gradle
