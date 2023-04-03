@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+declare -A __docker_throwaway=(
+    ["deno"]="denoland/deno:distroless-1.24.0 --"
+    ["node"]="node:18-slim"
+    ["busybox"]="busybox:1.35"
+)

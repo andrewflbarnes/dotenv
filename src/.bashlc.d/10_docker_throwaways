@@ -1,13 +1,5 @@
 #!/usr/bin/env bash
 
-declare -A __docker_throwaway=(
-    ["deno"]="denoland/deno:distroless-1.24.0 --"
-    ["node"]="node:18-slim"
-    ["busybox"]="busybox:1.35"
-    ["oci-builder"]="docker-release-local.docker.awstrp.net/com/trp/ea/unity-base-docker/trp-oci-builder/trp-oci-builder:2.1.1 sh"
-)
-export __docker_throwaway
-
 function _docker_throwaways {
     local prefix=$1
     echo ${!__docker_throwaway[@]} | xargs -n1 | grep "^$prefix" | sort
