@@ -5,6 +5,12 @@ function _ps1_is_remote {
 }
 export -f _ps1_is_remote
 
+export _ps1_subshell_ind="-"
+function _ps1_is_subshell {
+    ! [[ "$0" =~ ^- ]]
+}
+export -f _ps1_is_subshell
+
 ###########
 # Toggles #
 ###########
@@ -123,15 +129,20 @@ function prompt_command {
   then
     branch="\[${_fmt_ly}\]$branch\[${_fmt_x}\] "
   fi
-  
+
   local doll resp
   if [[ $code = 0 ]]
   then
-    doll="\[${_fmt_g}\]\\$\[${_fmt_x}\]"
+    doll="\[${_fmt_g}\]\\\$\[${_fmt_x}\]"
     resp=''
   else
-    doll="\[${_fmt_r}\]\\$\[${_fmt_x}\]"
+    doll="\[${_fmt_r}\]\\\$\[${_fmt_x}\]"
     resp="\[${_fmt_r}\]$code\[${_fmt_x}\] "
+  fi
+
+  if _ps1_is_subshell
+  then
+    doll="\[${_fmt_bd}\]${_ps1_subshell_ind}\[${_fmt_x}\]${doll}"
   fi
 
   local user
@@ -213,12 +224,19 @@ function envinfo {
     rem_fmt="${_fmt_lw}${_fmt_re}"
   fi
 
+  local sub_fmt
+  if _ps1_is_subshell
+  then
+    sub_fmt="${_fmt_bd}"
+  fi
+
   local java=$(_ps1_java_version)
   local python=$(_ps1_python_version)
   local node=$(_ps1_node_version)
 
   printf "%-25s ${_fmt_lr}%s${_fmt_x}\n"  "Machine:"                "${hostname}"
   printf "%-25s ${rem_fmt}%s${_fmt_x}\n"  "Remote:"                 ${rem_fmt:-No}${rem_fmt:+Yes}
+  printf "%-25s ${sub_fmt}%s${_fmt_x}\n"  "Subshell:"               ${sub_fmt:-No}${sub_fmt:+Yes}
   printf "%-25s ${_fmt_lm}%s${_fmt_x}\n"  "Pipenv:"                 ${VIRTUAL_ENV:-N/A}
   printf "%-25s ${_fmt_lb}%s${_fmt_x}\n"  "Python version:"         ${python}
   printf "%-25s ${_fmt_lb}%s${_fmt_x}\n"  "Java version:"           ${java}
