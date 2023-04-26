@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-export CARGO_HOME=$DEVHOME/.cargo
-export RUSTUP_HOME=$DEVHOME/.rustup
-
 source "$CARGO_HOME/env"
 eval "$(rustup completions bash)"
 eval "$(rustup completions bash cargo)"

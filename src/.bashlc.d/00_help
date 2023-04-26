@@ -28,13 +28,13 @@ function udf {
         do
             echo $loadfile
             awk '
-                /^function [a-zA-Z]/ {
+                /^ *function [a-zA-Z]/ {
                     print "- "$2
                 }
             ' ${loadfile} | sort
         done
     else
-        find -L ~/.bash*.d -type f -mindepth 1 -exec awk '/^function [a-zA-Z]/{ print "- "$2 }' {} \; | sort
+        find -L ~/.bash*.d -type f -mindepth 1 -exec awk '/^ *function [a-zA-Z]/{ print "- "$2 }' {} \; | sort
     fi
 
     echo

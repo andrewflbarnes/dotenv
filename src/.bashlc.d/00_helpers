@@ -9,3 +9,18 @@ function is_m1 {
   is_mac && [[ "$(uname -m)" = "arm64" ]]
 }
 export -f is_m1
+
+function must_exist {
+    local ret=0
+    local i
+    for i in $@
+    do
+        # use subshell so we test all values even if set -e
+        if ! (eval ": \${$i:?}")
+        then
+            ret=$((ret+1))
+        fi
+    done
+    return $ret
+}
+export -f must_exist
