@@ -11,6 +11,11 @@ function _ps1_is_subshell {
 }
 export -f _ps1_is_subshell
 
+function _ps1_is_nix {
+    [[ -n "$NIX_STORE" ]]
+}
+export -f _ps1_is_nix
+
 ###########
 # Toggles #
 ###########
@@ -106,6 +111,12 @@ function prompt_command {
     venv="\[${_fmt_lm}\][${venv##/*/}]\[${_fmt_x}\] "
   fi
 
+  local nixenv
+  if _ps1_is_nix
+  then
+    nixenv="\[${_fmt_lr}\][nix]\[${_fmt_x}\] "
+  fi
+
   local aws="\[${_fmt_lw}\][${AWS_REGION:-none}:${AWS_PROFILE:-default}]\[${_fmt_x}\]"
 
   local java=$(_ps1_java_version)
@@ -175,7 +186,7 @@ function prompt_command {
   
   # Note: optional elements (venv, branch, etc.) should have the space included in their
   # construction if they exist
-  PS1="${_fmt_x}${venv}${versions}${creds}${dir} ${branch}${resp}\n[\t] ${identifier} ${jobs}${doll} "
+  PS1="${_fmt_x}${nixenv}${venv}${versions}${creds}${dir} ${branch}${resp}\n[\t] ${identifier} ${jobs}${doll} "
 }
 export -f prompt_command
 
@@ -230,6 +241,14 @@ function envinfo {
     sub_fmt="${_fmt_bd}"
   fi
 
+  local nixenv
+  if _ps1_is_nix
+  then
+    nixenv=Yes
+  else
+    nixenv=No
+  fi
+
   local java=$(_ps1_java_version)
   local python=$(_ps1_python_version)
   local node=$(_ps1_node_version)
@@ -237,6 +256,7 @@ function envinfo {
   printf "%-25s ${_fmt_lr}%s${_fmt_x}\n"  "Machine:"                "${hostname}"
   printf "%-25s ${rem_fmt}%s${_fmt_x}\n"  "Remote:"                 ${rem_fmt:-No}${rem_fmt:+Yes}
   printf "%-25s ${sub_fmt}%s${_fmt_x}\n"  "Subshell:"               ${sub_fmt:-No}${sub_fmt:+Yes}
+  printf "%-25s ${_fmt_lr}%s${_fmt_x}\n"  "Nix shell:"              ${nixenv}
   printf "%-25s ${_fmt_lm}%s${_fmt_x}\n"  "Pipenv:"                 ${VIRTUAL_ENV:-N/A}
   printf "%-25s ${_fmt_lb}%s${_fmt_x}\n"  "Python version:"         ${python}
   printf "%-25s ${_fmt_lb}%s${_fmt_x}\n"  "Java version:"           ${java}
