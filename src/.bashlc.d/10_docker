@@ -36,3 +36,54 @@ function docker_autocompletion {
   done
 }
 export -f docker_autocompletion
+
+function docker_port_mapping {
+    local container=$1
+    local port=$2
+
+    if [ -z "$port" ]
+    then
+        echo "USAGE: docker_port_mapping <container> <port>" >&2
+        return 1
+    fi
+
+    docker container inspect $container \
+        | jq --arg port $port -r '
+            map(
+                .NetworkSettings
+                .Ports
+                | with_entries(
+                    select(
+                        .key | test("^" + $port + "/")
+                    )
+                )
+                | to_entries
+                | map(.value | map(.HostPort))
+                | add
+            )
+            | add[]
+        ' \
+        | sort \
+        | uniq
+}
+export -f docker_port_mapping
+
+function docker_proxy_env {
+    local proxy=$1
+    local noproxy=$2
+
+    if [ ${#@} -lt 2 ]
+    then
+        echo "USAGE: docker_proxy_env <proxy> <no proxy>" >&2
+        return 1
+    fi
+
+    echo \
+        "--env http_proxy=$proxy" \
+        "--env HTTP_PROXY=$proxy" \
+        "--env https_proxy=$proxy" \
+        "--env HTTPS_PROXY=$proxy" \
+        "--env no_proxy=$noproxy" \
+        "--env NO_PROXY=$noproxy"
+}
+export -f docker_proxy_env
