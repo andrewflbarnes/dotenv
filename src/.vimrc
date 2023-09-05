@@ -35,4 +35,4 @@ syntax enable
 set modeline
 set modelines=5
 
-color ron
+color desert
