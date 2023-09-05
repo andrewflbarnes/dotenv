@@ -1,5 +1,42 @@
 #!/usr/bin/env bash
 
+# Alternative cacheless gradle completion.
+#
+# If an existing gradle completion function exists (_gradle) then this will not be activated.
+# To switch between this and the environment de facto completion execture the gradle_completion_switch function.
+_gradle_completion_cacheless=0
+
+function gradle_completion_switch {
+    if [[ $(type -t _gradle) == function ]] && [ -n "$_gradle_completion_cacheless" ] && [[ "$_gradle_completion_cacheless" != "0" ]]
+    then
+        _gradle_completion_enable_default
+        echo Gradle default completion is enabled
+    else
+        _gradle_completion_enable_cacheless
+        echo Gradle cacheless completion is enabled
+    fi
+}
+
+function _gradle_completion_enable_default {
+    complete -F _gradle gradle
+    complete -F _gradle gradle.bat
+    complete -F _gradle gradlew
+    complete -F _gradle gradlew.bat
+    complete -F _gradle ./gradlew
+    complete -F _gradle ./gradlew.bat
+    _gradle_completion_cacheless=0
+}
+
+function _gradle_completion_enable_cacheless {
+    complete -o nosort -F _gradle__cacheless gradle
+    complete -o nosort -F _gradle__cacheless gradle.bat
+    complete -o nosort -F _gradle__cacheless gradlew
+    complete -o nosort -F _gradle__cacheless gradlew.bat
+    complete -o nosort -F _gradle__cacheless ./gradlew
+    complete -o nosort -F _gradle__cacheless ./gradlew.bat
+    _gradle_completion_cacheless=1
+}
+
 # If enabled condenses submodule command completion to just submodule names when current token is blank
 _gradle_completion_condense=0
 
@@ -46,16 +83,16 @@ _gradle_completion_opts="
 _gradle_completion_tasks="
 init
 wrapper
+"
 
+# module/submodule tasks
+_gradle_completion_mod_tasks="
 help
 dependencies
 projects
 properties
 tasks
-"
 
-# module/submodule tasks
-_gradle_completion_mod_tasks="
 version
 
 clean
@@ -119,7 +156,7 @@ function _gradle_completion_filter {
     fi
 }
 
-function _gradle {
+function _gradle__cacheless {
     local cur
     _get_comp_words_by_ref -n : cur
     local comm_prefix=$(_gradle_completion_case_resolve "$cur")
@@ -158,5 +195,7 @@ function _gradle {
     __ltrim_colon_completions "$comm_prefix"
 }
 
-complete -o nosort -F _gradle gradle
-complete -o nosort -F _gradle ./gradlew
+if [[ $(type -t _gradle) == "" ]]
+then
+    _gradle_completion_enable_cacheless
+fi
