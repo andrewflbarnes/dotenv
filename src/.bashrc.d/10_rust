@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
-source "$CARGO_HOME/env"
-eval "$(rustup completions bash)"
-eval "$(rustup completions bash cargo)"
+[ -n "$CARGO_HOME" ] && source "$CARGO_HOME/env"
+[ -n "$(type -t rustup)" ] && {
+    eval "$(rustup completions bash)"
+    eval "$(rustup completions bash cargo)"
+}

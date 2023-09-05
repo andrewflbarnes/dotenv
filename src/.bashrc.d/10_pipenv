@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
 export PIPENV_VENV_IN_PROJECT=1
-export PIPENV_SHELL=/usr/local/bin/bash
-eval "$(_PIPENV_COMPLETE=bash_source pipenv)"
+#eval "$(_PIPENV_COMPLETE=bash_source pipenv)"
+eval "$(SHLVL=2 _PIPENV_COMPLETE=bash_source pipenv)"
