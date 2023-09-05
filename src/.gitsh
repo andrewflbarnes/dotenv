@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+repo_home="$HOME/development/repo"
+
 function gitsh {
     local command=$1
     shift 1
