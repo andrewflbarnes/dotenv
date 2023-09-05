@@ -1,17 +1,19 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 function _vault_cubbify_help {
-    echo "SYNTAX: vault_cubbify <command> <endpoint> <key>"
+    echo "SYNTAX: vault_cubbify <command> <endpoint> <key> [as-role]"
     echo " WHERE:"
     echo " - command is the vault command i.e. read or write"
     echo " - endpoint is the vault endpoint to read/write secrets to"
     echo " - key is the key to store the secrets in the cubbyhole under"
+    echo " - as-role is any non-empty value which will trigger vault_as_role for data fetching"
     echo
     echo "For example:"
-    echo "vault_cubbify read database/org/role/creds/org_role db-role-creds"
+    echo "vault_cubbify read database/org/role/creds/org_role db-role-creds 1"
     echo
     echo "The above will"
     echo " - read the secrets stored/generated at the database/org/role/creds/org_role endpoint"
+    echo " - use vault_as_role to read the secrets"
     echo " - save the secrets and all associated metadata to cubbyhole/db-role-creds"
     echo
     echo "The data can now be read with"
@@ -27,6 +29,15 @@ function vault_cubbify {
     local comm=$1
     local endpoint=$2
     local key=$3
+    local as_role=$4
+
+    local vault_comm
+    if [ -z "$as_role" ]
+    then
+        vault_comm=vault
+    else
+        vault_comm=vault_as_role
+    fi
 
     if [ -z "$key" ]
     then
@@ -35,7 +46,7 @@ function vault_cubbify {
     fi
 
     local content
-    content=$(eval "vault $comm -format table $endpoint" | awk 'NR > 2 { printf $1"="$2" " }' )
+    content=$(eval "$vault_comm $comm -format table $endpoint" | awk 'NR > 2 { printf $1"="$2" " }' )
 
     vault write cubbyhole/$key $content
 
