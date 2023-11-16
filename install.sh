@@ -8,7 +8,7 @@ dotenv_dest="$HOME"
 shim_files="$cwd/shims"
 dotbin_dest="$HOME/dotbin"
 
-padding=75
+padding=95
 now=$(date "+%Y%m%d%H%M%S")
 
 function add_ln {
@@ -35,8 +35,15 @@ function add_ln {
     then
         if [ -e "${dest}" ]
         then
-            printf "\033[33m%-${padding}s\033[0m: %s\n" "The destination symlink already exists" "${dest}" >& 2
-            return 4
+            local dest_target="$(readlink -f "$dest")"
+            if [[ "$dest_target" != "$(readlink -f "$src")" ]]
+            then
+                printf "\033[31m%-${padding}s\033[0m: %s\n" "The destination symlink already exists for $dest" "${dest_target}" >& 2
+                return 4
+            else
+                printf "\033[33m%-${padding}s\033[0m: %s\n" "The destination symlink already exists" "${dest}" >& 2
+                return 4
+            fi
         else
             printf "\033[31m%-${padding}s\033[0m: %s -> %s\n" "The destination symlink already exists but is to a non-existent file" "${dest}" "$(readlink "${dest}")" >& 2
             return 2
