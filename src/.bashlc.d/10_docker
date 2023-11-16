@@ -3,7 +3,7 @@
 # Updates configuration following a brew upgrade docker
 function docker_reup {
   # sudo rsync -avu /Applications/Docker.app/Contents/Library/LaunchServices/com.docker.vmnetd /Library/PrivilegedHelperTools/com.docker.vmnetd
-  # sudo rsync -avu ~/.dotenv-etc/com.docker.vmnetd.plist /Library/LaunchDaemons/com.docker.vmnetd.plist
+  # sudo rsync -avu ~/.dotfiles-etc/com.docker.vmnetd.plist /Library/LaunchDaemons/com.docker.vmnetd.plist
   # sudo chown root:wheel /Library/PrivilegedHelperTools/com.docker.vmnetd
   # sudo chown root:wheel /Library/LaunchDaemons/com.docker.vmnetd.plist
   # sudo chmod 544 /Library/PrivilegedHelperTools/com.docker.vmnetd
