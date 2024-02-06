@@ -35,8 +35,8 @@ function add_ln {
     then
         if [ -e "${dest}" ]
         then
-            local dest_target="$(readlink -f "$dest")"
-            if [[ "$dest_target" != "$(readlink -f "$src")" ]]
+            local dest_target="$(realpath "$dest")"
+            if [[ "$dest_target" != "$(realpath "$src")" ]]
             then
                 printf "\033[31m%-${padding}s\033[0m: %s\n" "The destination symlink already exists for $dest" "${dest_target}" >& 2
                 return 4
@@ -45,7 +45,7 @@ function add_ln {
                 return 4
             fi
         else
-            printf "\033[31m%-${padding}s\033[0m: %s -> %s\n" "The destination symlink already exists but is to a non-existent file" "${dest}" "$(readlink "${dest}")" >& 2
+            printf "\033[31m%-${padding}s\033[0m: %s -> %s\n" "The destination symlink already exists but is to a non-existent file" "${dest}" "$(realpath "${dest}")" >& 2
             return 2
         fi
     fi
