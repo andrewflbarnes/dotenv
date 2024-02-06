@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+function _do_unparkmycloud {
+    local cluster=$1
+    shift
+
+    local service instances
+    date
+    echo "$@" \
+        | tr ' :' '\n ' \
+        | while read service instances
+        do
+            echo
+            echo "Scaling $service to $instances"
+	        aws ecs update-service \
+                --cluster $cluster \
+                --service $service \
+                --desired-count $instances \
+                | mlr --j2p \
+                    flatten \
+                    then cut -rf '^service.(running|desired|pending)Count$' \
+                    then rename -r 'service.(.*)Count,\1'
+# if miller not available
+#                | jq '.service | {
+#                    desired: .desiredCount,
+#                    running: .runningCount,
+#                    pending: .pendingCount
+#                }'
+        done
+}
+export -f _do_unparkmycloud
+
+function unparkmycloud {
+    local interval=$1
+    shift
+    local region=$1
+    shift
+    local profile=$1
+    shift
+
+    if [ -z "$2" ]
+    then
+        {
+            echo "USAGE: unparkmycloud INTERVAL REGION PROFILE CLUSTER SERVICE-SCALE [SERVICE-SCALE ...]"
+            echo "WHERE:"
+            echo "  INTERVAL      : the interval in seconds between unpark attempts"
+            echo "  REGION        : the AWS region to run against"
+            echo "  PROFILE       : the AWS profile to run against"
+            echo "  CLUSTER       : the name of the AWS cluster"
+            echo "  SERVICE-SCALE : the name of a cluster service and number of instances to scale to in"
+            echo "                  the form SERVICE:SCALE"
+            echo
+            echo "e.g."
+            echo "unparkmycloud 60 use-east-1 my-aws-account my-cluster my-service:1 my-other-service:2"
+        } >&2
+        return 1
+    fi
+
+    AWS_REGION=$region \
+        AWS_PROFILE=$profile \
+        watch -n$interval _do_unparkmycloud "$@"
+}
+export -f unparkmycloud

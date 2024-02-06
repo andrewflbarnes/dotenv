@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+
+function aws_ecs_services {
+  local cluster=${1:?First argument must be cluster name}
+
+  local cluster_services
+  if ! cluster_services=$(
+    aws ecs \
+      list-services \
+      --cluster "$cluster"
+  )
+  then
+    echo "Unable to retrieve services for cluster $cluster" >&2
+    return 1
+  fi
+
+  echo $cluster_services \
+  | jq -r '
+    .serviceArns
+    | join(" ")
+  '
+}
+export -f aws_ecs_services
+
+function aws_ecs_service_status {
+  local cluster=${1:?First argument must be cluster name}
+
+  local cluster_services
+  if ! cluster_services=$(aws_ecs_services $cluster)
+  then
+    return 1
+  fi
+
+  if [ -z "$cluster_services" ]
+  then
+    echo "No services found for cluster $cluster" >&2
+    return 2
+  fi
+
+  aws ecs \
+    describe-services \
+    --cluster "$cluster" \
+    --services $cluster_services \
+  | jq '
+    .services
+    | map(
+      {
+        (.serviceName | tostring) : {
+          serviceName,
+          status,
+          desiredCount,
+          runningCount,
+          pendingCount
+        }
+      }
+    )
+    |  add
+  '
+}
+export -f aws_ecs_service_status
+

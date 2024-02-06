@@ -1,8 +1,25 @@
 #!/usr/bin/env bash
 
-if [[ "x$SAFE_BASH_COMPLETION_VERSINFO" = "x" ]]
+if [ -z "$COMPLETION_REQUIRE" ]
+then
+    export COMPLETION_REQUIRE=1
+fi
+
+if [ -z "$COMPLETION_WAS_PIPENV" ]
+then
+    export COMPLETION_WAS_PIPENV=0
+fi
+
+if [ "$COMPLETION_WAS_PIPENV" -eq 0 ] && [ "${PIPENV_ACTIVE:-0}" -eq 1 ]
+then
+    COMPLETION_REQUIRE=1
+    COMPLETION_WAS_PIPENV=1
+fi
+
+if [ "$COMPLETION_REQUIRE" -eq 1 ]
 then
     unset BASH_COMPLETION_VERSINFO
+    COMPLETION_REQUIRE=0
     if is_mac
     then
         completion_location="/usr/local/etc/profile.d/bash_completion.sh"
@@ -11,5 +28,4 @@ then
     fi
     [[ -r "${completion_location}" ]] && . "${completion_location}"
     unset completion_location
-    export SAFE_BASH_COMPLATION_VERSINFO=$BASH_COMPLETION_VERSINFO
 fi

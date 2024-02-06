@@ -1,15 +1,14 @@
 #!/usr/bin/env bash
 
+repo_home="$HOME/development/repo"
+
 function gitsh {
     local command=$1
     shift 1
 
     case $command in
         andrewflbarnes)
-            local repo=$1
-            shift 1
-            local slug="$command/$repo"
-            gitsh_repo_clone github.com "$slug" $@
+            gitsh_no_host=1 gitsh_org_repo_clone github.com "$command" $@
             ;;
         github)
             gitsh_repo_clone github.com $@
@@ -20,11 +19,29 @@ function gitsh {
     esac
 }
 
+function gitsh_org_repo_clone {
+    local host=$1
+    shift
+    local org=$1
+    shift
+    local repo=$1
+    shift
+    local slug="$org/$repo"
+    gitsh_repo_clone $host $slug $@
+}
+
 function gitsh_repo_clone {
     local host=$1
-    local slug=$2
-    shift 2
-    local out="$HOME/development/repo/$host/$slug"
+    shift
+    local slug=$1
+    shift
+    local out
+    if [ "$gitsh_no_host" == 1 ]
+    then
+        out="${repo_home}/$slug"
+    else
+        out="${repo_home}/$host/$slug"
+    fi
 
     git clone "git@${host}:${slug}" "$out" $@
 }

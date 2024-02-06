@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+if [ -n "$(type -t rdctl)" ]
+then
+    PATH="$HOME/.rd/bin:$PATH"
+    eval "$(rdctl completion bash)"
+fi

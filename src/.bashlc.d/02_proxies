@@ -1,34 +1,51 @@
 #!/usr/bin/env bash
 
-export _DEFAULT_PROXY_SCHEME=http
+export _proxyr_proxies="https_proxy HTTPS_PROXY http_proxy HTTP_PROXY all_proxy ALL_PROXY"
+export _proxyr_no_proxies="no_proxy NO_PROXY"
 
-# The function can be used to reload proxy settings, both manually and by other functions.
 function proxyr {
-  scheme=${1:-$_DEFAULT_PROXY_SCHEME}
+  if [ -z "$2" ]
+  then
+    echo "USAGE : proxyr PROXY NO_PROXY" >&2
+    return 1
+  fi
 
-  for proxy in http{,s}_proxy HTTP{,S}_PROXY all_proxy ALL_PROXY no_proxy NO_PROXY
+  local proxy=$1
+  local no_proxy_hosts=$2
+
+  local proxy_var
+  for proxy_var in $_proxyr_proxies
   do
-    eval "unset ${proxy}"
+    eval "export $proxy_var=$proxy"
   done
-  # Add your proxies here :)
 
-  # export https_proxy=
-  # export http_proxy=
-  # export HTTP_PROXY=
-  # export HTTPS_PROXY=
-  # export ALL_PROXY=
-  # export all_proxy=
-  # export NO_PROXY=
-  # export no_proxy=
-
-  _proxy_ensure_scheme $scheme
+  for proxy_var in $_proxyr_no_proxies
+  do
+    eval "export $proxy_var=$no_proxy_hosts"
+  done
 }
 export -f proxyr
 
+function proxyr_unset {
+  local proxy
+  for proxy in $_proxyr_proxies $_proxyr_no_proxies
+  do
+    eval "unset $proxy"
+  done
+}
+export -f proxyr_unset
+
 # Ensures proxies are prefixed with the requested scheme
 function _proxy_ensure_scheme {
-  proxy_scheme=${1:-$DEFAULT_PROXY_SCHEME}
-  for proxy in http{,s}_proxy HTTP{,S}_PROXY all_proxy ALL_PROXY
+  if [ -z "$1" ]
+  then
+    echo "USAGE : _proxy_ensure_scheme SCHEME" >&2
+    return 1
+  fi
+
+  local proxy_scheme=$1
+  local proxy
+  for proxy in $_proxyr_proxies $_proxyr_no_proxies
   do
     eval "[[ -z \${${proxy}} || \${${proxy}} == ${proxy_scheme}* ]] || export ${proxy}=${proxy_scheme}://\${${proxy}}"
   done
@@ -37,12 +54,10 @@ export -f _proxy_ensure_scheme
 
 # prints the commands for exporting proxy variables (e.g. for copypasta/eval)
 function proxyenv {
-  for proxy in http{,s}_proxy HTTP{,S}_PROXY all_proxy ALL_PROXY no_proxy NO_PROXY
+  local proxy
+  for proxy in $_proxyr_proxies $_proxyr_no_proxies
   do
     echo ${proxy}=$(eval echo \$$proxy)
   done
 }
 export -f proxyenv
-
-# Ensure proxies are loaded correctly
-proxyr

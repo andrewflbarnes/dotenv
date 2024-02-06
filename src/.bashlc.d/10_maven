@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-export MAVEN_HOME=$DEV_TOOLS/apache-maven-3.6.3
+export MAVEN_HOME=$FOLDER_DEVTOOLS/apache-maven-3.6.3
 export PATH=$PATH:$MAVEN_HOME/bin

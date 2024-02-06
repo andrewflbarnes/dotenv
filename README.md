@@ -1,4 +1,4 @@
-# dotenv
+# dotfiles
 
 Loader for `bash`.
 

@@ -10,6 +10,7 @@ function jwt_decode {
     fi
 
     local line
+    local i=0
     tr '.' '\n' <<< $token \
         | awk '
             FNR < 3 {
@@ -20,10 +21,84 @@ function jwt_decode {
                 }
                 printf "\n"
             }
+            FNR == 3 {
+                print $1;
+            }
         ' \
         | while read line
         do
-            base64 -D <<< "$line" | jq .
+            i=$((i+1))
+            if [ $i -eq 3 ]
+            then
+                echo $line
+            else
+                base64 -D <<< "$line" | jq .
+            fi
         done
 }
 export -f jwt_decode
+
+function jwk_well_known {
+    local url=$1
+
+    if [ -z "$url" ]
+    then
+        echo "USAGE: jwk_well_known url" >&2
+        return 1
+    fi
+
+    curl -fSsL "$url/.well-known/openid-configuration" \
+        | jq .
+}
+export -f jwk_well_known
+
+function jwk_jwks_uri {
+    local url=$1
+
+    if [ -z "$url" ]
+    then
+        echo "USAGE: jwk_jwks_uri url" >&2
+        return 1
+    fi
+
+    local jwks_uri
+    jwks_uri="$(jwk_well_known "$url" | jq -r .jwks_uri)"
+    echo "$jwks_uri"
+}
+export -f jwk_jwks_uri
+
+function jwks {
+    local url=$1
+
+    if [ -z "$url" ]
+    then
+        echo "USAGE: jwks url" >&2
+        return 1
+    fi
+
+    local jwks_uri
+    jwks_uri="$(jwk_jwks_uri "$url")"
+
+    curl -fSsL "$jwks_uri" | jq .
+}
+export -f jwks
+
+function jwk {
+    local url=$1
+    local alg=$2
+    local kid=$3
+
+    if [ -z "$kid" ]
+    then
+        echo "USAGE: jwk url alg kid" >&2
+        return 1
+    fi
+
+    jwks "$url" \
+        | jq \
+            -r \
+            --arg kid "$kid" \
+            --arg alg "$alg" \
+            '.keys | map(select(.kid==$kid and .alg==$alg))[0]'
+}
+export -f jwk

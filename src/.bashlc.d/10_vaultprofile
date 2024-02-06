@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 export VAULT_PROFILE=""
-export VAULT_COMPANY="troweprice"
+export VAULT_COMPANY="andrewflbarnes"
 export _vault_prefix=".vault."
 export _vault_suffix=""
 export _vault_none="none"

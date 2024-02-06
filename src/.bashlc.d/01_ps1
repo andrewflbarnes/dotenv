@@ -140,7 +140,7 @@ function prompt_command {
   then
     branch="\[${_fmt_ly}\]$branch\[${_fmt_x}\] "
   fi
-
+  
   local doll resp
   if [[ $code = 0 ]]
   then

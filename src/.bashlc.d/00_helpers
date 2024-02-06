@@ -9,3 +9,34 @@ function is_m1 {
   is_mac && [[ "$(uname -m)" = "arm64" ]]
 }
 export -f is_m1
+
+function commands_exist {
+    local commands=$*
+    local ret=0
+    local command
+    for command in $commands
+    do
+        if ! type "$command" &>/dev/null
+        then
+            echo "$command: command not available" >&2
+            ret=$((ret+1))
+        fi
+    done
+    return $ret
+}
+export -f commands_exist
+
+function vars_exist {
+    local ret=0
+    local i
+    for i in $@
+    do
+        # use subshell so we test all values as failing :? will exit 1
+        if ! (eval ": \${$i:?}")
+        then
+            ret=$((ret+1))
+        fi
+    done
+    return $ret
+}
+export -f vars_exist
