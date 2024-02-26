@@ -30,7 +30,13 @@ return require("lazy").setup({
     "williamboman/mason-lspconfig.nvim",
     config = function()
       require("mason-lspconfig").setup {
-        ensure_installed = { 'jdtls', 'rust-analyzer', 'codelldb', 'shellcheck' }
+        ensure_installed = {
+          'jdtls', 'rust_analyzer','tsserver', 'awk_ls', 'ansiblels', 'arduino_language_server', 'bashls',
+          'clangd', 'neocmake', 'cssmodules_ls', 'denols', 'dockerls', 'docker_compose_language_service',
+          'eslint', 'gradle_ls', 'graphql', 'html', 'helm_ls', 'jsonls', 'jqls', 'lua_ls', 'remark_ls',
+          'spectral', 'perlnavigator', 'prismals', 'pyright', 'sqls', 'taplo', 'terraformls', 'volar',
+          'lemminx', 'yamlls', 'zls'
+        }
       }
       
       require("mason-lspconfig").setup_handlers {
