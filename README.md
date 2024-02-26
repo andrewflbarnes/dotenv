@@ -38,6 +38,15 @@ Ensure the below tools are installed
 - unzip
 - ripgrep
 
+Various language servers installed through Mason also require
+- npm/node
+- java
+- golang
+- cargo/rust
+
+Manual commands to be run after first initialisation:
+- `MasonInstall codelldb`
+
 ### Adding existing files to this repo
 
 The simplest thing is just move the file into `src` then run `./install.sh` to create a symlink e.g.
