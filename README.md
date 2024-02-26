@@ -20,7 +20,6 @@ brew bundle install
 ./install.sh
 
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
 jenv enable-plugin export
 
 cat << EOF >> ~/.bash_profile
@@ -37,14 +36,6 @@ The simplest thing is just move the file into `src` then run `./install.sh` to c
 ```bash
 mv ~/.npmrc src
 ./install.sh
-```
-
-### Overwriting existing/bad symlinks
-
-To force symlinks to be re-created in the event they already exist, or are invalid in some way, pass any value as
-and argument to the install script e.g.
-```bash
-./install.sh force
 ```
 
 ### Adding loader files
