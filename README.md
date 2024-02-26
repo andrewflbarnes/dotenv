@@ -52,3 +52,16 @@ the files are loaded). Add any commands you want then open a new bash shell.
 - `~/.bashrc.d`.
 - The loader mechanisms should be sourced into `~/.bash_profile` (which itself appears to be remote managed). This
   will ensure make things a little easier if the system overwrites the file (just add the two `.` source lines back).
+
+### Issues
+
+#### Neovim with JDTLS
+
+There is currently an incompatibility with JDTLS and lombok as a result of changes to the internal JDT AST classes.
+
+This can be resolved by
+- downloading an [older version](https://download.eclipse.org/jdtls/milestones/1.30.1/jdt-language-server-1.30.1-202402151717.tar.gz) or JDTLS
+- replacing all jars in `~/.local/share/nvim/mason/packages/jdtls/plugins` with those from the download
+- removing and re-linking all jars in `~/.local/share/nvim/mason/share/jdtls/plugins`
+
+Without these changes the lombok agent will fail to process any `@EqualsAndHashCode` annotations.
