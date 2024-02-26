@@ -30,6 +30,14 @@ EOF
 
 Remove or comment out any sourcing of `~/.bashrc` from `/etc/bashrc`.
 
+#### Neovim
+
+Ensure the below tools are installed
+- gcc (or equivalent)
+- cmake
+- unzip
+- ripgrep
+
 ### Adding existing files to this repo
 
 The simplest thing is just move the file into `src` then run `./install.sh` to create a symlink e.g.
