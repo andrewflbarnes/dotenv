@@ -47,3 +47,7 @@ vnoremap <A-CR> <Esc><Cmd>lua vim.lsp.buf.code_action()<CR>
 nnoremap <leader>ac <Cmd>lua vim.lsp.buf.code_action()<CR>
 vnoremap <leader>ac <Esc><Cmd>lua vim.lsp.buf.code_action()<CR>
 ]])
+
+-- rest
+vim.keymap.set('n', '<leader>rr', function() require'rest-nvim'.run() end)
+vim.keymap.set('n', '<leader>rp', function() require'rest-nvim'.run(true) end)

@@ -11,6 +11,12 @@ require('plug')
 require('opts')
 require('keys')
 
+if vim.fn.filereadable(vim.fn.stdpath('config') .. '/lua/corporate/init.lua') == 1 then
+  require('corporate')
+else
+  print('No corporate configuration loaded')
+end
+
 -- LSP Diagnostics Options Setup 
 local sign = function(opts)
   vim.fn.sign_define(opts.name, {

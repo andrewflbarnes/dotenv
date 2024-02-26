@@ -3,9 +3,12 @@ local jdtls_bin = mason .. '/bin/jdtls'
 local jdtls_lombok = mason .. '/share/jdtls/lombok.jar'
 local jdtls_plugins = mason .. '/share/jdtls/plugins/'
 local jdtls_config = mason .. '/packages/jdtls/config_mac'
+-- todo configure somewhere better
 local jenv = vim.fn.expand('$HOME/.jenv/versions/')
 local java_bin = jenv .. '17/bin/java'
 local project_dir = vim.fs.dirname(vim.fs.find({'gradlew', '.git', 'mvnw'}, { upward = true })[1])
+local project_name = vim.fn.fnamemodify(project_dir, ':p:h:t')
+local workspace = vim.fn.stdpath('data') .. '/workspace-jdtls/' .. project_name
 
 local jdtls_cmd = {
   java_bin,
@@ -21,7 +24,7 @@ local jdtls_cmd = {
   '-javaagent:' .. jdtls_lombok,
   '-jar', jdtls_plugins .. 'org.eclipse.equinox.launcher.jar',
   '-configuration', jdtls_config,
-  '-data', project_dir,
+  '-data', workspace,
 }
 
 local config = {
@@ -52,6 +55,33 @@ local config = {
             name = "JavaSE-17",
             path = jenv .. '17',
           },
+        },
+        imports = {
+          maven = {
+            enabled = true,
+          },
+          gradle = {
+            enabled = true,
+            wrapper = {
+              enabled = true,
+            }
+          },
+          signatureHelp = {
+            enabled = true,
+          }
+        },
+        jdt = {
+          ls = {
+            lombokSupport = {
+              enabled = true
+            }
+          }
+        },
+        sources = {
+          organizeImports = {
+            starThreshold = 9999,
+            staticStarThreshold = 9999,
+          }
         }
       }
 --      codeGeneration = {
