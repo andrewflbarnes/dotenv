@@ -33,7 +33,7 @@ set number
 set relativenumber
 ]])
 
-vim.cmd [[colorscheme habamax]]
+vim.cmd [[colorscheme catppuccin-macchiato]]
 
 vim.opt.expandtab = true -- Use spaces instead of tabs
 vim.opt.shiftwidth = 4 -- Shift 4 spaces when tab
