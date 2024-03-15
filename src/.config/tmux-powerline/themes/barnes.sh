@@ -1,5 +1,56 @@
-# Default Theme
-# If changes made here does not take effect, then try to re-create the tmux session to force reload.
+# Personal Theme
+#
+####################################################################################################
+# Colors from bubble theme created by @embe221ed (https://github.com/embe221ed)
+# colors are inspired by catppuccin palettes (https://github.com/catppuccin/catppuccin)
+####################################################################################################
+
+# COLORS
+
+# background for frappe catppuccin terminal theme
+# thm_bg="#303446"
+
+# background for macchiato catppuccin terminal theme
+thm_bg="#24273A"
+
+thm_fg="#c6d0f5"
+thm_cyan="#99d1db"
+thm_black="#292c3c"
+thm_gray="#414559"
+thm_magenta="#ca9ee6"
+thm_pink="#f4b8e4"
+thm_blue="#8caaee"
+thm_black4="#626880"
+rosewater="#f2d5cf"
+flamingo="#eebebe"
+pink="#f4b8e4"
+mauve="#ca9ee6"
+red="#e78284"
+maroon="#ea999c"
+peach="#ef9f76"
+yellow="#e5c890"
+green="#a6d189"
+teal="#81c8be"
+sky="#99d1db"
+sapphire="#85c1dc"
+blue="#8caaee"
+lavender="#babbf1"
+text="#c6d0f5"
+subtext1="#b5bfe2"
+subtext0="#a5adce"
+overlay2="#949cbb"
+overlay1="#838ba7"
+overlay0="#737994"
+surface2="#626880"
+surface1="#51576d"
+surface0="#414559"
+base="#303446"
+mantle="#292c3c"
+crust="#232634"
+eggplant="#e889d2"
+sky_blue="#a7c7e7"
+spotify_green="#1db954"
+spotify_black="#191414"
 
 if patched_font_in_use; then
 	TMUX_POWERLINE_SEPARATOR_LEFT_BOLD=""
@@ -14,8 +65,8 @@ else
 fi
 
 # See Color formatting section below for details on what colors can be used here.
-TMUX_POWERLINE_DEFAULT_BACKGROUND_COLOR=${TMUX_POWERLINE_DEFAULT_BACKGROUND_COLOR:-'235'}
-TMUX_POWERLINE_DEFAULT_FOREGROUND_COLOR=${TMUX_POWERLINE_DEFAULT_FOREGROUND_COLOR:-'255'}
+TMUX_POWERLINE_DEFAULT_BACKGROUND_COLOR=${TMUX_POWERLINE_DEFAULT_BACKGROUND_COLOR:-$thm_bg}
+TMUX_POWERLINE_DEFAULT_FOREGROUND_COLOR=${TMUX_POWERLINE_DEFAULT_FOREGROUND_COLOR:-$thm_fg}
 TMUX_POWERLINE_SEG_AIR_COLOR=$("${TMUX_POWERLINE_DIR_HOME}/segments/air_color.sh")
 
 TMUX_POWERLINE_DEFAULT_LEFTSIDE_SEPARATOR=${TMUX_POWERLINE_DEFAULT_LEFTSIDE_SEPARATOR:-$TMUX_POWERLINE_SEPARATOR_RIGHT_BOLD}
@@ -29,13 +80,13 @@ if [ -z $TMUX_POWERLINE_WINDOW_STATUS_CURRENT ]; then
 	TMUX_POWERLINE_WINDOW_STATUS_CURRENT=(
 		"#[$(format inverse)]" \
         "#{?pane_synchronized,#[bg=red],}" \
-		"$TMUX_POWERLINE_DEFAULT_LEFTSIDE_SEPARATOR" \
+		#"$TMUX_POWERLINE_DEFAULT_LEFTSIDE_SEPARATOR" \
 		" #I#F " \
 		"$TMUX_POWERLINE_SEPARATOR_RIGHT_THIN" \
 		" #W " \
 		"#[$(format regular)]" \
         "#{?pane_synchronized,#[fg=red],}" \
-		"$TMUX_POWERLINE_DEFAULT_LEFTSIDE_SEPARATOR"
+		#"$TMUX_POWERLINE_DEFAULT_LEFTSIDE_SEPARATOR"
 	)
 fi
 
@@ -85,18 +136,18 @@ fi
 
 if [ -z $TMUX_POWERLINE_LEFT_STATUS_SEGMENTS ]; then
 	TMUX_POWERLINE_LEFT_STATUS_SEGMENTS=(
-		"tmux_session_info 148 234" \
+		"tmux_session_info $blue $thm_bg" \
 		#"date_day 235 136 ${TMUX_POWERLINE_SEPARATOR_RIGHT_THIN}" \
 		#"date 235 136 ${TMUX_POWERLINE_SEPARATOR_RIGHT_THIN}" \
 		#"time 235 136" \
-		"hostname 33 0" \
+		"hostname $thm_bg $eggplant ${TMUX_POWERLINE_SEPARATOR_RIGHT_THIN}" \
 		#"mode_indicator 165 0" \
 		#"ifstat 30 255" \
 		#"ifstat_sys 30 255" \
-		#"lan_ip 24 255" \
-        #${TMUX_POWERLINE_SEPARATOR_RIGHT_THIN}" \
-		#"wan_ip 24 255" \
-		"vcs_branch 29 88" \
+		"lan_ip $thm_bg $sky_blue ${TMUX_POWERLINE_SEPARATOR_RIGHT_THIN}" \
+        "#[$(format regular)]" \
+		"wan_ip $thm_bg $sky_blue" \
+		#"vcs_branch 29 88" \
 		#"vcs_compare 60 255" \
 		#"vcs_staged 64 255" \
 		#"vcs_modified 9 255" \
@@ -108,7 +159,7 @@ if [ -z $TMUX_POWERLINE_RIGHT_STATUS_SEGMENTS ]; then
 	TMUX_POWERLINE_RIGHT_STATUS_SEGMENTS=(
 		#"earthquake 3 0" \
 		#"vcs_branch 29 88" \
-		"pwd 89 211" \
+		#"pwd 89 211" \
 		#"macos_notification_count 29 255" \
 		#"mailcount 9 255" \
 		#"now_playing 234 37" \
@@ -120,9 +171,9 @@ if [ -z $TMUX_POWERLINE_RIGHT_STATUS_SEGMENTS ]; then
 		#"weather 37 255" \
 		#"rainbarf 0 ${TMUX_POWERLINE_DEFAULT_FOREGROUND_COLOR}" \
 		#"xkb_layout 125 117" \
-		"date_day 235 136" \
-		"date 235 136 ${TMUX_POWERLINE_SEPARATOR_LEFT_THIN}" \
-		"time 235 136 ${TMUX_POWERLINE_SEPARATOR_LEFT_THIN}" \
+		"date_day $thm_bg $teal" \
+		"date $thm_bg $teal ${TMUX_POWERLINE_SEPARATOR_LEFT_THIN}" \
+		"time $thm_bg $teal ${TMUX_POWERLINE_SEPARATOR_LEFT_THIN}" \
 		#"utc_time 235 136 ${TMUX_POWERLINE_SEPARATOR_LEFT_THIN}" \
 	)
 fi
