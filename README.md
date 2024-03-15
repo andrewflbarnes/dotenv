@@ -45,7 +45,7 @@ Various language servers installed through Mason also require
 - cargo/rust
 
 Manual commands to be run after first initialisation:
-- `MasonInstall codelldb`
+- `MasonInstall codelldb shellcheck sonarlint-language-server`
 
 ### Adding existing files to this repo
 
