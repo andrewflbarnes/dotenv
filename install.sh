@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 
 install() {
-    local opts="$@"
+    local opts=("$@")
+
     local cwd
-    cwd="$(realpath $0 | xargs dirname)"
+    cwd="$(realpath "$0" | xargs dirname)"A
+
     local src="$cwd"
     local package=src
     local dest="$HOME"
@@ -23,7 +25,7 @@ install() {
         return 2
     fi
     
-    stow -v --adopt -t "$dest" -d "$src" "$@" "$package"
+    stow -v --adopt -t "$dest" -d "$package" "${opts[@]}" .
 }
 
 install "$@"
