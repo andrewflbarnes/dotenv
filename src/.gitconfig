@@ -29,3 +29,8 @@
 [user]
 	email = andrewflbarnes@hotmail.co.uk
 	name = andrewflbarnes
+	signingkey = /Users/andrew.barnes/.ssh/id_rsa.pub
+[gpg]
+	format = ssh
+[commit]
+	gpgsign = true
