@@ -4,7 +4,7 @@ install() {
     local opts=("$@")
 
     local cwd
-    cwd="$(realpath "$0" | xargs dirname)"A
+    cwd="$(realpath "$0" | xargs dirname)"
 
     local src="$cwd"
     local package=src
