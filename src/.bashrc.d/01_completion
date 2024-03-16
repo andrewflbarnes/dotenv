@@ -1,31 +1,24 @@
 #!/usr/bin/env bash
 
-if [ -z "$COMPLETION_REQUIRE" ]
-then
-    export COMPLETION_REQUIRE=1
-fi
+_do_completions() {
+    #if [ -n "$BASH_COMPLETION_VERSINFO" ]
+    #then
+    #    return
+    #fi
 
-if [ -z "$COMPLETION_WAS_PIPENV" ]
-then
-    export COMPLETION_WAS_PIPENV=0
-fi
-
-if [ "$COMPLETION_WAS_PIPENV" -eq 0 ] && [ "${PIPENV_ACTIVE:-0}" -eq 1 ]
-then
-    COMPLETION_REQUIRE=1
-    COMPLETION_WAS_PIPENV=1
-fi
-
-if [ "$COMPLETION_REQUIRE" -eq 1 ]
-then
+    # force completion to always rerun in subshell
     unset BASH_COMPLETION_VERSINFO
-    COMPLETION_REQUIRE=0
+
+    local completion_location
     if is_mac
     then
         completion_location="/usr/local/etc/profile.d/bash_completion.sh"
     else
         completion_location="/home/linuxbrew/.linuxbrew/etc/profile.d/bash_completion.sh"
     fi
+
     [[ -r "${completion_location}" ]] && . "${completion_location}"
-    unset completion_location
-fi
+}
+
+_do_completions
+unset _do_completions
