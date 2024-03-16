@@ -3,8 +3,14 @@
 export PIPENV_VENV_IN_PROJECT=1
 
 function pipenv_completion {
+    local pipenv_completion_cache="$HOME/.pipenv_completion.cache"
+    if ! [ -e "$pipenv_completion_cache" ]
+    then
+        SHLVL=2 _PIPENV_COMPLETE=bash_source pipenv > "$pipenv_completion_cache"
+    fi
     #eval "$(_PIPENV_COMPLETE=bash_source pipenv)"
-    eval "$(SHLVL=2 _PIPENV_COMPLETE=bash_source pipenv)"
+    #eval "$(SHLVL=2 _PIPENV_COMPLETE=bash_source pipenv)"
+    . "$pipenv_completion_cache"
 }
 export -f pipenv_completion
 
