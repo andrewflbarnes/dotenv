@@ -12,27 +12,27 @@
 "set re=0
 "
 "set autowrite
-"set rnu
-"set number
+set rnu
+set number
 "set hlsearch
 "set ruler
 "set cmdheight=2
-"set ignorecase
-"set smartcase
+set ignorecase
+set smartcase
 "set showmatch
-"set noerrorbells
-"set encoding=utf8
+set noerrorbells
+set encoding=utf8
 "
-"set expandtab
-"set smarttab
-"set tabstop=4
-"set shiftwidth=4
-"set ai
-"set si
+set expandtab
+set smarttab
+set tabstop=4
+set shiftwidth=4
+set ai
+set si
 "set wrap
 "
-"syntax enable
+syntax enable
 "set modeline
 "set modelines=5
 "
-"color desert
+color calmar256-dark

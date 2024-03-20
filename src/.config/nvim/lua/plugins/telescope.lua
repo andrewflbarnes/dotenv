@@ -31,6 +31,7 @@ return {
       telescope.load_extension('ui-select')
       telescope.setup({
         defaults = {
+          path_display = { 'smart' },
           -- `hidden = true` is not supported in text grep commands.
           vimgrep_arguments = vimgrep_arguments,
         },

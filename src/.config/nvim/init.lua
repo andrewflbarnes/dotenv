@@ -1,7 +1,7 @@
 -- nvim-tree
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
-
+vim.loader.enable()
 -- shim if vim.uv doesn't exist
 if vim.uv == nil then
   vim.uv = vim.loop
