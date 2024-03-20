@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-
-export NVM_DIR="$HOME/.nvm"
-brew_nvm=$(brew --prefix nvm)
-[ -s "${brew_nvm}/nvm.sh" ] && . "${brew_nvm}/nvm.sh"  # This loads nvm
-[ -s "${brew_nvm}/etc/bash_completion.d/nvm" ] && . "${brew_nvm}/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
-
-

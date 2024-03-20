@@ -42,3 +42,14 @@ let g:vimspector_terminal_maxwidth = 70
 
 -- auto-session
 vim.o.sessionoptions="blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
+vim.cmd([[
+set number
+set relativenumber
+]])
+
+vim.cmd [[colorscheme catppuccin-macchiato]]
+
+vim.opt.expandtab = true -- Use spaces instead of tabs
+vim.opt.shiftwidth = 4 -- Shift 4 spaces when tab
+vim.opt.tabstop = 4 -- 1 tab == 4 spaces
+vim.opt.smartindent = true -- Autoindent new lines

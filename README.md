@@ -45,7 +45,7 @@ Various language servers installed through Mason also require
 - cargo/rust
 
 Manual commands to be run after first initialisation:
-- `MasonInstall codelldb`
+- `MasonInstall codelldb shellcheck sonarlint-language-server`
 
 ### Adding existing files to this repo
 
@@ -64,11 +64,9 @@ the files are loaded). Add any commands you want then open a new bash shell.
 
 - .bashlc should be sourced **before** .bashrc
 - bash config which can be loaded once by an initial shell and exports its configuration should be added to
-  `~/.bashlc.d` e.g. `10_nvm`
+  `~/.bashlc.d`
 - bash config which must be loaded by every shell and does not export its configuration should be added to
-- `~/.bashrc.d`.
-- The loader mechanisms should be sourced into `~/.bash_profile` (which itself appears to be remote managed). This
-  will ensure make things a little easier if the system overwrites the file (just add the two `.` source lines back).
+  `~/.bashrc.d`
 
 ### Issues
 
