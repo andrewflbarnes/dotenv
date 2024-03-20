@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
-if [[ "${JENV_LOADED:-0}" -ne "1" || "$(type -t jenv)" != function ]]
+if [[ "${JENV_LOADED:-0}" -ne "1" ]] && type -t jenv &>/dev/null
 then
-    eval "$(jenv init -)"
-    export -f _jenv_export_hook
+    eval "$(jenv init - --no-rehash)"
+    export -f jenv
+    type -t _jenv_export_hook &>/dev/null && export -f _jenv_export_hook
 fi

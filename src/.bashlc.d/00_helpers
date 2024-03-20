@@ -10,6 +10,22 @@ function is_m1 {
 }
 export -f is_m1
 
+function files_exist {
+    local files=$*
+    local ret=0
+    local file
+    for file in $files
+    do
+        if ! [ -f "$file" ]
+        then
+            echo "$file: file does not exist" >&2
+            ret=$((ret+1))
+        fi
+    done
+    return $ret
+}
+export -f files_exist
+
 function commands_exist {
     local commands=$*
     local ret=0

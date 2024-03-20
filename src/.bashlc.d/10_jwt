@@ -32,7 +32,7 @@ function jwt_decode {
             then
                 echo $line
             else
-                base64 -D <<< "$line" | jq .
+                base64 --decode <<< "$line" | jq .
             fi
         done
 }

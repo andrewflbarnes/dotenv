@@ -9,12 +9,19 @@ return {
           enable = true,
           additional_vim_regex_highlighting=false,
         },
-        ident = { enable = true }, 
+        ident = { enable = true },
         rainbow = {
           enable = true,
           extended_mode = true,
           max_file_lines = nil,
-        }
+        },
+        incremental_selection = {
+          enable = true,
+          keymaps = {
+            node_incremental = "v",
+            node_decremental = "V",
+          },
+        },
       }
     end,
   },
