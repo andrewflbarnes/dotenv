@@ -63,7 +63,7 @@ function _ps1_java_version {
   # 50-60x faster than jenv version
   ( [ -n "${JENV_VERSION}" ] && echo ${JENV_VERSION} ) || \
       _ps1_java_version_file || \
-      ( [ -r ~/.jenv/version ] && cat ~/.jenv/version ) || \
+      ( [ -r "${JENV_ROOT:-$HOME/.jenv}/version" ] && cat "${JENV_ROOT:-$HOME/.jenv}/version" ) || \
       echo "system"
 }
 export -f _ps1_java_version
