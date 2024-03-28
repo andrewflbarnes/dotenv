@@ -22,6 +22,35 @@ else
 end
 print('JDTLS using ' .. jdtls_config .. ' platform configuration')
 
+-- See https://github.com/eclipse/eclipse.jdt.ls/wiki/Running-the-JAVA-LS-server-from-the-command-line#initialize-request
+-- And search for `interface RuntimeOption`
+-- The `name` is NOT arbitrary, but must match one of the elements from `enum ExecutionEnvironment` in the link above
+local possible_runtimes = {
+    {
+        name = "JavaSE-1.8",
+        path = jenv .. '1.8',
+    },
+    {
+        name = "JavaSE-11",
+        path = jenv .. '11',
+    },
+    {
+        name = "JavaSE-17",
+        path = jenv .. '17',
+    },
+    {
+        name = "JavaSE-21",
+        path = jenv .. '21',
+    },
+}
+
+local runtimes = {}
+for _, runtime in ipairs(possible_runtimes) do
+    if vim.fn.isdirectory(runtime.path) ~= 0 then
+        table.insert(runtimes, runtime)
+    end
+end
+
 local jdtls_cmd = {
   java_bin,
   '-Declipse.application=org.eclipse.jdt.ls.core.id1',
@@ -91,23 +120,7 @@ local config = {
         }
       },
       configuration = {
-        -- See https://github.com/eclipse/eclipse.jdt.ls/wiki/Running-the-JAVA-LS-server-from-the-command-line#initialize-request
-        -- And search for `interface RuntimeOption`
-        -- The `name` is NOT arbitrary, but must match one of the elements from `enum ExecutionEnvironment` in the link above
-        runtimes = {
-          {
-            name = "JavaSE-1.8",
-            path = jenv .. '1.8',
-          },
-          {
-            name = "JavaSE-11",
-            path = jenv .. '11',
-          },
-          {
-            name = "JavaSE-17",
-            path = jenv .. '17',
-          },
-        },
+        runtimes = runtimes
       }
 --      codeGeneration = {
 --        hashCodeEquals = {
