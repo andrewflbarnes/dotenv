@@ -3,6 +3,10 @@ local map = vim.api.nvim_set_keymap
 -- movement
 vim.keymap.set('v', '<S-UP>', ':m\'<-2<CR>gv=gv')
 vim.keymap.set('v', '<S-DOWN>', ':m\'>+1<CR>gv=gv')
+vim.keymap.set('n', '<S-RIGHT>', '<Cmd>botright copen<CR><C-W><C-P><Cmd>cafter<CR>')
+vim.keymap.set('n', '<M-RIGHT>', '<Cmd>botright copen<CR><C-W><C-P><Cmd>cnfile<CR>')
+vim.keymap.set('n', '<S-LEFT>', '<Cmd>botright copen<CR><C-W><C-P><Cmd>cbefore<CR>')
+vim.keymap.set('n', '<M-LEFT>', '<Cmd>botright copen<CR><C-W><C-P><Cmd>cpfile<CR>')
 
 -- Vimspector
 -- Below keymaps used for lazy loading
