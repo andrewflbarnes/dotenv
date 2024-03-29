@@ -1,5 +1,9 @@
 local map = vim.api.nvim_set_keymap
 
+-- movement
+vim.keymap.set('v', '<S-UP>', ':m\'<-2<CR>gv=gv')
+vim.keymap.set('v', '<S-DOWN>', ':m\'>+1<CR>gv=gv')
+
 -- Vimspector
 -- Below keymaps used for lazy loading
 --nmap <F9> <cmd>call vimspector#Launch()<cr>
