@@ -1,7 +1,10 @@
 -- nvim-tree
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
+-- vim.g.netrw_liststyle = 3
+-- vim.g.netrw_banner = 0
 vim.loader.enable()
+
 -- shim if vim.uv doesn't exist
 if vim.uv == nil then
   vim.uv = vim.loop
@@ -11,10 +14,8 @@ require('plug')
 require('opts')
 require('keys')
 
-if vim.fn.filereadable(vim.fn.stdpath('config') .. '/lua/corporate/init.lua') == 1 then
+if vim.fn.isdirectory(vim.fn.stdpath('config') .. '/lua/corporate/init.lua') ~= 0 then
   require('corporate')
-else
-  print('No corporate configuration loaded')
 end
 
 -- LSP Diagnostics Options Setup 

@@ -1,7 +1,12 @@
 return {
-  "neovim/nvim-lspconfig",
   {
-    "williamboman/mason.nvim",
+    "neovim/nvim-lspconfig",
+    event = { 'BufNewFile', 'BufReadPost', 'VeryLazy' },
+    dependencies = {
+      "hrsh7th/nvim-cmp",
+      "williamboman/mason.nvim",
+      "williamboman/mason-lspconfig.nvim",
+    },
     config = function()
       require("mason").setup({
         ui = {
@@ -12,11 +17,7 @@ return {
           },
         }
       })
-    end,
-  },
-  {
-    "williamboman/mason-lspconfig.nvim",
-    config = function()
+
       require("mason-lspconfig").setup {
         ensure_installed = {
           'jdtls', 'rust_analyzer','tsserver', 'awk_ls', 'ansiblels', 'arduino_language_server', 'bashls',
@@ -26,9 +27,12 @@ return {
           'lemminx', 'yamlls', 'zls'
         }
       }
+      local capabilities = require('cmp_nvim_lsp').default_capabilities()
       require("mason-lspconfig").setup_handlers {
         function (server_name) -- default handler (optional)
-          require("lspconfig")[server_name].setup {}
+          require("lspconfig")[server_name].setup({
+            capabilities = capabilities
+          })
         end,
         ["jdtls"] = function () end, -- use nvim-jdtls instead
         ["rust_analyzer"] = function () end, -- rely on rust-tools
@@ -36,6 +40,7 @@ return {
           local nvim_lsp = require("lspconfig");
           nvim_lsp.denols.setup {
             --on_attach = on_attach,
+            capabilities = capabilities,
             root_dir = nvim_lsp.util.root_pattern("deno.json", "deno.jsonc"),
           }
         end,
@@ -43,6 +48,7 @@ return {
           local nvim_lsp = require("lspconfig");
           nvim_lsp.tsserver.setup {
             --on_attach = on_attach,
+            capabilities = capabilities,
             root_dir = nvim_lsp.util.root_pattern("package.json"),
             single_file_support = false,
           }

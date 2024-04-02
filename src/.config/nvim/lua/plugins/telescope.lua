@@ -1,8 +1,21 @@
+local lu = require('lazyutils')
+
+local keys = lu.lazy_keys(function(c) return {
+  { 'n', '<leader>ff', c.find_files, { desc = "[f]ind [f]iles" } },
+  { 'n', '<leader>fg', c.live_grep, { desc = "[f]ind [g]rep" } },
+  { 'n', '<leader>fb', c.buffers, { desc = "[f]ind [b]uffers" } },
+  { 'n', '<leader>fh', c.help_tags, { desc = "[f]ind [h]elp" } },
+  { 'n', '<leader>fr', c.lsp_references, { desc = "[f]ind [r]eferences" } },
+  { 'n', '<F60>', c.lsp_document_symbols, { desc = "lsp document symbols" } },
+  { 'n', '<M-F12>', c.lsp_document_symbols, { desc = "lsp document symbols" } },
+} end)
+
 return {
   {
     'nvim-telescope/telescope.nvim',
     branch = '0.1.x',
     dependencies = {
+      "nvim-treesitter/nvim-treesitter",
       'nvim-lua/plenary.nvim',
       {
         'nvim-telescope/telescope-fzf-native.nvim',
@@ -13,6 +26,7 @@ return {
       },
       'nvim-telescope/telescope-ui-select.nvim',
     },
+    keys = keys:triggers(),
     config = function()
       local telescope = require("telescope")
       local telescopeConfig = require("telescope.config")
@@ -42,6 +56,8 @@ return {
           },
         },
       })
+
+      keys:map_keys(require("telescope.builtin"))
     end,
   },
 }

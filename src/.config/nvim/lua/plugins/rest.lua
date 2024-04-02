@@ -1,7 +1,11 @@
-return  {
+return {
   "rest-nvim/rest.nvim",
   tag = 'v1.2.1',
-  requires = { "nvim-lua/plenary.nvim" },
+  keys = {
+    '<leader>rr',
+    '<leader>rp',
+  },
+  dependencies = { "nvim-lua/plenary.nvim" },
   config = function()
     require("rest-nvim").setup({
       -- Open request results in a horizontal split
@@ -35,7 +39,7 @@ return  {
         formatters = {
           json = "jq",
           html = function(body)
-            return vim.fn.system({"tidy", "-i", "-q", "--custom-tags", "yes", "-"}, body)
+            return vim.fn.system({ "tidy", "-i", "-q", "--custom-tags", "yes", "-" }, body)
           end
         },
       },
@@ -49,5 +53,8 @@ return  {
       yank_dry_run = true,
       search_back = true,
     })
+
+    vim.keymap.set('n', '<leader>rr', function() require 'rest-nvim'.run() end, { desc = "[r]est [r]un" })
+    vim.keymap.set('n', '<leader>rp', function() require 'rest-nvim'.run(true) end, { desc = "[r]est [p]review" })
   end
 }

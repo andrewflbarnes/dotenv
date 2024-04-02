@@ -4,6 +4,12 @@ return {
     dependencies = {
       "nvim-tree/nvim-web-devicons",
     },
+    lazy = false,
+--    keys = {
+--      "<leader>T",
+--      "<M-F1>1",
+--      "<F49>1",
+--    },
     config = function()
       require("nvim-tree").setup {
         view = {
@@ -13,6 +19,9 @@ return {
           symlink_destination = false
         }
       }
+      vim.keymap.set('n', '<leader>T', ':NvimTreeToggle<CR>', { desc = "[T]oggle NvimTree"})
+      vim.keymap.set('n', '<F49>1', ':NvimTreeFindFile<CR>', { desc = "Find file in NvimTree" })
+      vim.keymap.set('n', '<M-F1>1', ':NvimTreeFindFile<CR>', { desc = "Find file in NvimTree" })
     end
   },
 }

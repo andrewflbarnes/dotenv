@@ -2,6 +2,7 @@ return {
   {
     'echasnovski/mini.clue',
     version = false,
+    lazy = false,
     config = function()
       local miniclue = require('mini.clue')
       miniclue.setup({
@@ -12,6 +13,9 @@ return {
 
           -- Built-in completion
           { mode = 'i', keys = '<C-x>' },
+
+          -- LSP and code completion
+          { mode = 'n', keys = 'c' },
 
           -- `g` key
           { mode = 'n', keys = 'g' },

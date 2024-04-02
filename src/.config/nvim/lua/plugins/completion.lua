@@ -2,6 +2,18 @@
   -- Completion framework:
   {
     "hrsh7th/nvim-cmp",
+    dependencies = {
+      -- LSP completion source:
+      "hrsh7th/cmp-nvim-lsp",
+
+      -- Useful completion sources:
+      "hrsh7th/cmp-nvim-lua",
+      "hrsh7th/cmp-nvim-lsp-signature-help",
+      "hrsh7th/cmp-vsnip",
+      "hrsh7th/cmp-path",
+      "hrsh7th/cmp-buffer",
+      "hrsh7th/vim-vsnip",
+    },
     config = function()
       local cmp = require'cmp'
       cmp.setup({
@@ -12,6 +24,7 @@
           end,
         },
         mapping = {
+
           ['<C-p>'] = cmp.mapping.select_prev_item(),
           ['<C-n>'] = cmp.mapping.select_next_item(),
           -- Add tab support
@@ -56,15 +69,4 @@
       })
     end,
   },
-
-  -- LSP completion source:
-  "hrsh7th/cmp-nvim-lsp",
-
-  -- Useful completion sources:
-  "hrsh7th/cmp-nvim-lua",
-  "hrsh7th/cmp-nvim-lsp-signature-help",
-  "hrsh7th/cmp-vsnip",
-  "hrsh7th/cmp-path",
-  "hrsh7th/cmp-buffer",
-  "hrsh7th/vim-vsnip",
  }
