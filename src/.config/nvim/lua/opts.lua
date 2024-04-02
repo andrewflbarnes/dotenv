@@ -1,5 +1,6 @@
 vim.cmd([[
-colorscheme catppuccin-macchiato
+colorscheme rose-pine
+"colorscheme catppuccin-macchiato
 ]])
 vim.opt.termguicolors = true
 vim.opt.number = true
@@ -27,7 +28,6 @@ vim.api.nvim_set_option('updatetime', 300)
 -- Show inlay_hints more frequently 
 vim.cmd([[
 set signcolumn=yes
-autocmd CursorHold * lua vim.diagnostic.open_float(nil, { focusable = false })
 ]])
 
 -- Treesitter folding 
@@ -42,14 +42,3 @@ let g:vimspector_terminal_maxwidth = 70
 
 -- auto-session
 vim.o.sessionoptions="blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
-vim.cmd([[
-set number
-set relativenumber
-]])
-
-vim.cmd [[colorscheme catppuccin-macchiato]]
-
-vim.opt.expandtab = true -- Use spaces instead of tabs
-vim.opt.shiftwidth = 4 -- Shift 4 spaces when tab
-vim.opt.tabstop = 4 -- 1 tab == 4 spaces
-vim.opt.smartindent = true -- Autoindent new lines

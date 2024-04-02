@@ -1,5 +1,9 @@
 return {
   {
+    'rose-pine/neovim',
+    name = "rosepine"
+  },
+  {
     'rebelot/kanagawa.nvim',
     config = function()
       require'kanagawa'.setup{}
