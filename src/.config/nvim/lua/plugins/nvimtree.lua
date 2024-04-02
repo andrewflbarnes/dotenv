@@ -5,11 +5,6 @@ return {
       "nvim-tree/nvim-web-devicons",
     },
     lazy = false,
---    keys = {
---      "<leader>T",
---      "<M-F1>1",
---      "<F49>1",
---    },
     config = function()
       require("nvim-tree").setup {
         view = {

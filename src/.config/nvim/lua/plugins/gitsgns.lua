@@ -2,6 +2,24 @@ return {
   {
     "lewis6991/gitsigns.nvim",
     event = { 'BufReadPost', 'BufNewFile' },
+    keys = {
+      { 'gsb', ':Gitsigns toggle_current_line_blame<CR>', mode = { 'n', 'v' }, desc = "[g]it[s]igns toggle [b]lame" },
+      { 'gsn', ':Gitsigns next_hunk<CR>', mode = { 'n', 'v' }, desc = "[g]it[s]igns [n]ext hunk" },
+      { 'gsp', ':Gitsigns preview_hunk<CR>', mode = { 'n', 'v' }, desc = "[g]it[s]igns [p]review hunk" },
+      { 'gsr', ':Gitsigns reset_hunk<CR>', mode = { 'n', 'v' }, desc = "[g]it[s]igns [r]eset hunk" },
+      { 'gst', function()
+        local tog = not vim.g.gitsigns_toggled
+        require('gitsigns').setup({
+          linehl = tog,
+          word_diff = tog,
+          show_deleted = tog,
+        })
+        vim.g.gitsigns_toggled = tog
+        vim.cmd('Gitsigns refresh')
+      end,
+      mode = { 'n', 'v' },
+      desc = "[g]it[s]igns [t]oggle"
+    },
     config = function()
       require('gitsigns').setup {
         signcolumn = false,
@@ -16,21 +34,7 @@ return {
         },
       }
 
-      vim.keymap.set({ 'n', 'v' }, 'gsb', ':Gitsigns toggle_current_line_blame<CR>',
-        { desc = "[g]it[s]igns toggle [b]lame" })
-      vim.keymap.set({ 'n', 'v' }, 'gsn', ':Gitsigns next_hunk<CR>', { desc = "[g]it[s]igns [n]ext hunk" })
-      vim.keymap.set({ 'n', 'v' }, 'gsp', ':Gitsigns preview_hunk<CR>', { desc = "[g]it[s]igns [p]review hunk" })
-      vim.keymap.set({ 'n', 'v' }, 'gsr', ':Gitsigns reset_hunk<CR>', { desc = "[g]it[s]igns [r]eset hunk" })
-      vim.keymap.set({ 'n', 'v' }, 'gst', function()
-        local tog = not vim.g.gitsigns_toggled
-        require('gitsigns').setup({
-          linehl = tog,
-          word_diff = tog,
-          show_deleted = tog,
-        })
-        vim.g.gitsigns_toggled = tog
-        vim.cmd('Gitsigns refresh')
-      end, { desc = "[g]it[s]igns [t]oggle" }, { noremap = true })
     end,
   },
+},
 }

@@ -2,8 +2,8 @@ return {
   "rest-nvim/rest.nvim",
   tag = 'v1.2.1',
   keys = {
-    '<leader>rr',
-    '<leader>rp',
+    { '<leader>rr', function() require 'rest-nvim'.run() end,     mode = "n", desc = "[r]est [r]un" },
+    { '<leader>rp', function() require 'rest-nvim'.run(true) end, mode = "n", desc = "[r]est [p]review" },
   },
   dependencies = { "nvim-lua/plenary.nvim" },
   config = function()
@@ -53,8 +53,5 @@ return {
       yank_dry_run = true,
       search_back = true,
     })
-
-    vim.keymap.set('n', '<leader>rr', function() require 'rest-nvim'.run() end, { desc = "[r]est [r]un" })
-    vim.keymap.set('n', '<leader>rp', function() require 'rest-nvim'.run(true) end, { desc = "[r]est [p]review" })
   end
 }
