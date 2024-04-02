@@ -28,9 +28,14 @@ nmap <F10> <cmd>call vimspector#StepInto()<cr>")
 -- terminal
 vim.keymap.set('t', "<Esc><Esc>", "<C-\\><C-n>:q<CR>", { desc = "Escape terminal" })
 
--- Gitsigns
-vim.keymap.set('n', 'gsr', ':Gitsigns reset_hunk<CR>', { desc = "[G]it[S]igns [R]eset hunk" })
-vim.keymap.set('n', 'gsp', ':Gitsigns preview_hunk<CR>', { desc = "[G]it[S]igns [P]review hunk" })
+-- diagnostics
+vim.keymap.set('n', '<leader>ld', function() vim.diagnostic.open_float({ scope = "line" }) end, { desc = "[l]ist [d]iagnostics" })
+
+-- jetbrians style
+vim.keymap.set({ 'n', 'v' }, '<S-F6>', vim.lsp.buf.rename, { desc = "lsp rename symbol" })
+vim.keymap.set({ 'n', 'v' }, '<F18>', vim.lsp.buf.rename, { desc = "lsp rename symbol" })
+vim.keymap.set({ 'n', 'v' }, '<M-CR>', vim.lsp.buf.code_action, { desc = "code actions" })
+vim.keymap.set({ 'n', 'v' }, '<leader>ac', vim.lsp.buf.code_action, { desc = "[a]ction - [c]ode actions" })
 
 -- Jdtls
 vim.cmd([[
@@ -42,11 +47,6 @@ nnoremap crc <Cmd>lua require('jdtls').extract_constant()<CR>
 vnoremap crc <Esc><Cmd>lua require('jdtls').extract_constant(true)<CR>
 vnoremap crm <Esc><Cmd>lua require('jdtls').extract_method(true)<CR>
 ]])
-
-vim.keymap.set({ 'n', 'v' }, '<F18>', vim.lsp.buf.rename)
-vim.keymap.set({ 'n', 'v' }, '<S-F6>', vim.lsp.buf.rename)
-vim.keymap.set({ 'n', 'v' }, '<M-CR>', vim.lsp.buf.code_action)
-vim.keymap.set({ 'n', 'v' }, '<leader>ac', vim.lsp.buf.code_action, { desc = "[A]ction - [C]ode actions" })
 
 -- LSP
 vim.api.nvim_create_autocmd('LspAttach', {

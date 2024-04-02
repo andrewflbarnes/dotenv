@@ -21,7 +21,7 @@ vim.opt.colorcolumn = "80"
 -- updatetime: set updatetime for CursorHold
 vim.opt.completeopt = {'menuone', 'noselect', 'noinsert'}
 vim.opt.shortmess = vim.opt.shortmess + { c = true}
-vim.api.nvim_set_option('updatetime', 300) 
+vim.api.nvim_set_option('updatetime', 300)
 
 -- Fixed column for diagnostics to appear
 -- Show autodiagnostic popup on cursor hover_range
@@ -29,7 +29,6 @@ vim.api.nvim_set_option('updatetime', 300)
 -- Show inlay_hints more frequently 
 vim.cmd([[
 set signcolumn=yes
-autocmd CursorHold * lua vim.diagnostic.open_float(nil, { focusable = false })
 ]])
 
 -- Treesitter folding 
@@ -44,7 +43,3 @@ let g:vimspector_terminal_maxwidth = 70
 
 -- auto-session
 vim.o.sessionoptions="blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
-vim.cmd([[
-set number
-set relativenumber
-]])

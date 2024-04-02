@@ -8,6 +8,8 @@ local keys = lu.lazy_keys(function(c) return {
   { 'n', '<leader>fr', c.lsp_references, { desc = "[f]ind [r]eferences" } },
   { 'n', '<F60>', c.lsp_document_symbols, { desc = "lsp document symbols" } },
   { 'n', '<M-F12>', c.lsp_document_symbols, { desc = "lsp document symbols" } },
+  { 'n', '<leader>fq', c.quickfixhistory, { desc = "[f]ind [q]uickfix history" } },
+  { 'n', '<leader>fQ', c.quickfix, { desc = "[f]ind [Q]uickfixes" } },
 } end)
 
 return {
