@@ -1,5 +1,6 @@
 --- Convenience functions for working with lazy.
--- @module lazyutils
+--- Largely unnecessary but thought it would be interesting to learn some lua.
+---@class lazyutils
 local M = {}
 
 ---Return type of lazy_keys
@@ -11,6 +12,7 @@ local LK = {
 ---Returns a table with functions for providing LazySpec keys and performing
 ---@param self lazykeys
 ---@return table
+---@nodiscard
 LK.triggers = function(self)
   local key_table
   if type(self.key_init) == 'function' then
@@ -20,10 +22,11 @@ LK.triggers = function(self)
   end
   local lazy_key_triggers = {}
   for _, mapping in pairs(key_table) do
+    local modes = mapping[1]
     local seq = mapping[2]
     local opts = mapping[4] or {}
     local desc = opts.desc
-    table.insert(lazy_key_triggers, { seq, desc = desc })
+    table.insert(lazy_key_triggers, { seq, mode = modes, desc = desc })
   end
   return lazy_key_triggers
 end
