@@ -7,20 +7,24 @@ return {
       { 'gsn', ':Gitsigns next_hunk<CR>', mode = { 'n', 'v' }, desc = "[g]it[s]igns [n]ext hunk" },
       { 'gsp', ':Gitsigns preview_hunk<CR>', mode = { 'n', 'v' }, desc = "[g]it[s]igns [p]review hunk" },
       { 'gsr', ':Gitsigns reset_hunk<CR>', mode = { 'n', 'v' }, desc = "[g]it[s]igns [r]eset hunk" },
-      { 'gst', function()
-        local tog = not vim.g.gitsigns_toggled
-        require('gitsigns').setup({
-          linehl = tog,
-          word_diff = tog,
-          show_deleted = tog,
-        })
-        vim.g.gitsigns_toggled = tog
-        vim.cmd('Gitsigns refresh')
-      end,
-      mode = { 'n', 'v' },
-      desc = "[g]it[s]igns [t]oggle"
+      {
+        'gst',
+        function()
+          local tog = not vim.g.gitsigns_toggled
+          require('gitsigns').setup({
+            linehl = tog,
+            word_diff = tog,
+            show_deleted = tog,
+          })
+          vim.g.gitsigns_toggled = tog
+          vim.cmd('Gitsigns refresh')
+        end,
+        mode = { 'n', 'v' },
+        desc = "[g]it[s]igns [t]oggle"
+      },
     },
     config = function()
+      print("loading gitsigns")
       require('gitsigns').setup {
         signcolumn = false,
         numhl = true,
@@ -36,5 +40,4 @@ return {
 
     end,
   },
-},
 }

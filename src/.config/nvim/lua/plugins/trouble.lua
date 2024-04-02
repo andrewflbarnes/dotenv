@@ -1,23 +1,20 @@
 local lu = require("lazyutils")
 
 local keys = lu.lazy_keys(function(trouble)
-  local open_and_prev = function()
-    if not trouble.is_open() then
-      trouble.open()
-    end
-    trouble.previous({ skip_groups = true, jump = true })
+  local trouble_open = function()
     if not trouble.is_open() then
       trouble.open()
     end
   end
+  local open_and_prev = function()
+    trouble_open()
+    trouble.previous({ skip_groups = true, jump = true })
+    trouble_open()
+  end
   local open_and_next = function()
-    if not trouble.is_open() then
-      trouble.open()
-    end
+    trouble_open()
     trouble.next({ skip_groups = true, jump = true })
-    if not trouble.is_open() then
-      trouble.open()
-    end
+    trouble_open()
   end
   return {
     { "n", "<leader>xx", ":TroubleToggle<CR>", { desc = "trouble toggle" } },
