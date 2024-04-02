@@ -27,6 +27,7 @@ return {
         end
       },
       'nvim-telescope/telescope-ui-select.nvim',
+      'folke/trouble.nvim',
     },
     keys = keys:triggers(),
     config = function()
@@ -45,8 +46,29 @@ return {
       table.insert(vimgrep_arguments, "!**/.git/*")
 
       telescope.load_extension('ui-select')
+
+      local actions = require("telescope.actions")
+      local trouble = require("trouble")
+      local trouble_quickfix_selection = function(bufnr)
+        actions.send_selected_to_qflist(bufnr)
+        trouble.open("quickfix")
+      end
+      local trouble_quickfix = function(bufnr)
+        actions.send_to_qflist(bufnr)
+        trouble.open("quickfix")
+      end
       telescope.setup({
         defaults = {
+          mappings = {
+            n = {
+              ["<M-q>"] = trouble_quickfix_selection,
+              ["<C-q>"] = trouble_quickfix,
+            },
+            i = {
+              ["<M-q>"] = trouble_quickfix_selection,
+              ["<C-q>"] = trouble_quickfix,
+            },
+          },
           path_display = { 'smart' },
           -- `hidden = true` is not supported in text grep commands.
           vimgrep_arguments = vimgrep_arguments,

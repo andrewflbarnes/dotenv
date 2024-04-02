@@ -9,7 +9,7 @@ local LK = {
   key_init = {},
 }
 
----Returns a table with functions for providing LazySpec keys and performing
+---Returns a table of LazyKeysSpec for lazy plugin configuration triggers.
 ---@param self lazykeys
 ---@return table
 ---@nodiscard
@@ -55,11 +55,12 @@ LK.map_keys = function(self, ctx)
   end
 end
 
----Returns a table with functions for providing LazySpec keys and performing
--- the bindings via vim.keymap.set. keys may either be a table containing modes,
--- lhs, rhs, opts or a function taking a context object which provides it. In
--- both cases the rhs may be a table containing an unkeyed function which accepts
--- the context.
+---Returns a lazykeys instance for the provided binding table or function.
+---Functions are exposed to bind keys (with vim.keymap.set) and to provide a
+---LazyKeysSpec table for lazy plugin triggers. Keys may either be a table
+---containing modes, lhs, rhs, opts or a function taking a context object which
+---generates one. In both cases the rhs may be a table containing an unkeyed
+---function which accepts the context.
 ---@return lazykeys
 function M.lazy_keys(keys)
   local lk = { key_init = keys }
