@@ -22,9 +22,6 @@ return {
       {
         'nvim-telescope/telescope-fzf-native.nvim',
         build = 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build',
-        config = function()
-          require('telescope').load_extension('fzf')
-        end
       },
       'nvim-telescope/telescope-ui-select.nvim',
       'folke/trouble.nvim',
@@ -46,6 +43,7 @@ return {
       table.insert(vimgrep_arguments, "!**/.git/*")
 
       telescope.load_extension('ui-select')
+      telescope.load_extension('fzf')
 
       local actions = require("telescope.actions")
       local trouble = require("trouble")
@@ -59,6 +57,11 @@ return {
       end
       telescope.setup({
         defaults = {
+          sorting_strategy = "ascending",
+          layout_config = {
+            prompt_position = "top",
+            scroll_speed = 5,
+          },
           mappings = {
             n = {
               ["<M-q>"] = trouble_quickfix_selection,
