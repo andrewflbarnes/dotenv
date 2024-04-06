@@ -1,6 +1,6 @@
 -- movement
-vim.keymap.set('v', '<S-UP>', ':m\'<-2<CR>gv=gv')
-vim.keymap.set('v', '<S-DOWN>', ':m\'>+1<CR>gv=gv')
+vim.keymap.set('v', '<S-UP>', function() return ':m\'<-' .. 1 + vim.v.count1 .. '<CR>gv=gv' end, { expr = true })
+vim.keymap.set('v', '<S-DOWN>', function() return ':m\'>+' .. vim.v.count1 .. '<CR>gv=gv' end, { expr = true })
 
 -- prefer trouble
 ---- quickfix - next/prev in file
