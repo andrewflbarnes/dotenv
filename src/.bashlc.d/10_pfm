@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+export PFM_HOME=$HOME/.pfm
+PATH="$PFM_HOME/bin:$PATH"
