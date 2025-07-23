@@ -6,7 +6,7 @@ return {
     event = { "BufReadPost", "BufNewFile", "VeryLazy" },
     config = function()
       require('nvim-treesitter.configs').setup {
-        ensure_installed = { "lua", "rust", "toml", "html", "json" },
+        ensure_installed = { "lua", "rust", "toml", "html", "json", "clojure" },
         auto_install = true,
         highlight = {
           enable = true,

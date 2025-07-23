@@ -46,15 +46,8 @@ return {
       telescope.load_extension('fzf')
 
       local actions = require("telescope.actions")
-      local trouble = require("trouble")
-      local trouble_quickfix_selection = function(bufnr)
-        actions.send_selected_to_qflist(bufnr)
-        trouble.open("quickfix")
-      end
-      local trouble_quickfix = function(bufnr)
-        actions.send_to_qflist(bufnr)
-        trouble.open("quickfix")
-      end
+      local open_trouble = require("trouble.sources.telescope").open
+      local add_trouble = require("trouble.sources.telescope").add
       telescope.setup({
         defaults = {
           sorting_strategy = "ascending",
@@ -64,12 +57,12 @@ return {
           },
           mappings = {
             n = {
-              ["<M-q>"] = trouble_quickfix_selection,
-              ["<C-q>"] = trouble_quickfix,
+              ["<C-t>"] = open_trouble,
+              ["<C-q>"] = add_trouble,
             },
             i = {
-              ["<M-q>"] = trouble_quickfix_selection,
-              ["<C-q>"] = trouble_quickfix,
+              ["<C-t>"] = open_trouble,
+              ["<C-q>"] = add_trouble,
             },
           },
           path_display = { 'smart' },
@@ -78,6 +71,7 @@ return {
         },
         pickers = {
           find_files = {
+            theme = 'ivy',
             -- `hidden = true` will still show the inside of `.git/` as it's not `.gitignore`d.
             find_command = { "rg", "-L", "--files", "--hidden", "--glob", "!**/.git/*" },
           },

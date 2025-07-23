@@ -19,11 +19,13 @@ return {
   {
     'catppuccin/nvim',
     name = 'catppuccin',
+    event = { 'VeryLazy' },
     config = function()
       require("catppuccin").setup({})
     end
   },
   {
     'savq/melange-nvim',
+    event = { 'VeryLazy' },
   }
 }

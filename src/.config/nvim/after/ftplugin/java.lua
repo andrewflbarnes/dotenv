@@ -29,7 +29,7 @@ local resolve_java_bin = function()
 end
 
 local mason = vim.fn.stdpath('data') .. '/mason'
-local jdtls_bin = mason .. '/bin/jdtls'
+--local jdtls_bin = mason .. '/bin/jdtls'
 local jdtls_lombok = mason .. '/share/jdtls/lombok.jar'
 local jdtls_plugins = mason .. '/share/jdtls/plugins/'
 local jdtls_config_dir = mason .. '/packages/jdtls/'
@@ -99,6 +99,15 @@ local jdtls_cmd = {
 
 vim.g.jdtls_cmd = jdtls_cmd
 
+local bundles = {}
+local java_debug = vim.fn.stdpath('data') .. '/jdtls/java-debug'
+table.insert(bundles, vim.fn.glob(java_debug .. "/com.microsoft.java.debug.plugin/target/com.microsoft.java.debug.plugin-*.jar", 1))
+local java_test = vim.fn.stdpath('data') .. '/jdtls/vscode-java-test'
+vim.list_extend(bundles, vim.split(vim.fn.glob(java_test .. "/server/*.jar", 1), "\n"))
+local init_options = {
+  bundles = bundles
+}
+
 local config = {
   cmd = jdtls_cmd,
   --  cmd = {
@@ -161,6 +170,7 @@ local config = {
       --        useBlocks = true,
       --      },
     }
-  }
+  },
+  init_options = init_options,
 }
 require('jdtls').start_or_attach(config)
