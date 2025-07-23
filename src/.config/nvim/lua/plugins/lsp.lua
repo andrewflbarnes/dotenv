@@ -8,6 +8,30 @@ return {
       "williamboman/mason-lspconfig.nvim",
     },
     config = function()
+      local capabilities = require('cmp_nvim_lsp').default_capabilities()
+      local nvim_lsp = require("lspconfig");
+      vim.lsp.config["denols"] = {
+        capabilities = capabilities,
+        root_dir = nvim_lsp.util.root_pattern("deno.json", "deno.jsonc"),
+      }
+      vim.lsp.config["ts_ls"] = {
+        capabilities = capabilities,
+        --root_dir = nvim_lsp.util.root_pattern("package.json"),
+        workspace_required = true,
+      }
+      --["volar"] = function()
+      --  require("lspconfig").volar.setup({
+      --    filetypes = { "vue", "javascript", "typescript", "javascriptreact", "typescriptreact" },
+      --    init_options = {
+      --      vue = {
+      --        hybridMode = false,
+      --      },
+      --      typescript = {
+      --        tsdk = vim.fn.getcwd() .. "/node_modules/typescript/lib",
+      --      },
+      --    },
+      --  })
+      --end,
       require("mason").setup({
         ui = {
           icons = {
@@ -20,52 +44,21 @@ return {
 
       require("mason-lspconfig").setup {
         ensure_installed = {
-          'jdtls', 'rust_analyzer','tsserver', 'awk_ls', 'ansiblels', 'arduino_language_server', 'bashls',
-          'clangd', 'neocmake', 'cssmodules_ls', 'denols', 'dockerls', 'docker_compose_language_service',
+          'jdtls', 'rust_analyzer','ts_ls', 'awk_ls', 'ansiblels', 'arduino_language_server', 'bashls',
+          'clangd','cssmodules_ls', 'denols', 'dockerls', 'docker_compose_language_service',
+          --'neocmake',
           'eslint', 'gradle_ls', 'graphql', 'html', 'helm_ls', 'jsonls', 'jqls', 'lua_ls', 'marksman',
-          'spectral', 'perlnavigator', 'prismals', 'pyright', 'sqls', 'taplo', 'terraformls', 'volar',
+          --'spectral',
+          'perlnavigator', 'prismals', 'pyright', 'sqls', 'taplo', 'terraformls',
+          -- 'volar',
           'lemminx', 'yamlls', 'zls'
+        },
+        automatic_enable = {
+          exclude = {
+            "jdtls",
+            "rust_analyzer",
+          }
         }
-      }
-      local capabilities = require('cmp_nvim_lsp').default_capabilities()
-      require("mason-lspconfig").setup_handlers {
-        function (server_name) -- default handler (optional)
-          require("lspconfig")[server_name].setup({
-            capabilities = capabilities
-          })
-        end,
-        ["jdtls"] = function () end, -- use nvim-jdtls instead
-        ["rust_analyzer"] = function () end, -- rely on rust-tools
-        ["denols"] = function ()
-          local nvim_lsp = require("lspconfig");
-          nvim_lsp.denols.setup {
-            --on_attach = on_attach,
-            capabilities = capabilities,
-            root_dir = nvim_lsp.util.root_pattern("deno.json", "deno.jsonc"),
-          }
-        end,
-        ["tsserver"] = function ()
-          local nvim_lsp = require("lspconfig");
-          nvim_lsp.tsserver.setup {
-            --on_attach = on_attach,
-            capabilities = capabilities,
-            root_dir = nvim_lsp.util.root_pattern("package.json"),
-            single_file_support = false,
-          }
-        end,
-        ["volar"] = function()
-          require("lspconfig").volar.setup({
-            filetypes = { "vue", "javascript", "typescript", "javascriptreact", "typescriptreact" },
-            init_options = {
-              vue = {
-                hybridMode = false,
-              },
-              typescript = {
-                tsdk = vim.fn.getcwd() .. "/node_modules/typescript/lib",
-              },
-            },
-          })
-        end,
       }
     end,
   },
