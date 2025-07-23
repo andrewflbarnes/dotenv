@@ -22,6 +22,7 @@
 	st = status --short --branch
 	andrewflbarnes = !bash ~/.gitsh andrewflbarnes
 	hub = !bash ~/.gitsh github
+	delta = -c core.pager=delta -c interactive.diffFilter='delta --color-only' -c delta.navigate=true -c merge.conflictstyle=diff3 diff
 [credential]
 	helper = osxkeychain
 [pull]
@@ -34,3 +35,6 @@
 	format = ssh
 [commit]
 	gpgsign = true
+
+#[diff]
+#    colorMoved = default
