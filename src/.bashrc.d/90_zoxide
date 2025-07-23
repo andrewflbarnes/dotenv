@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+if type -t zoxide &>/dev/null
+then
+  eval "$(zoxide init bash --cmd cd)"
+fi
