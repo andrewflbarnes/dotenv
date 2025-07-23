@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+function qemu_codesign {
+    local vm
+    for vm in $(command ls -1 /usr/local/bin/qemu-system-*)
+    do
+        echo "Checking vm $vm..."
+        if ! codesign --display --entitlements - "$vm" 2> /dev/null | grep -q '\[Key\] '
+        then
+            echo "No entitlements, skipping."
+            continue
+        fi
+
+        if codesign --verify "$vm"
+        then
+            echo "Valid signature, skipping."
+            continue
+        fi
+
+	echo -e "\033[33m==>\033[0mSigning..."
+        codesign -f -s - --preserve-metadata=entitlements "$vm"
+    done
+}
+export -f qemu_codesign

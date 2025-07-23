@@ -13,6 +13,10 @@ _do_completions() {
     if is_mac
     then
         completion_location="/usr/local/etc/profile.d/bash_completion.sh"
+        if ! [ -r "$completion_location" ]
+        then
+            completion_location="/opt/homebrew/etc/profile.d/bash_completion.sh"
+        fi
     else
         completion_location="/home/linuxbrew/.linuxbrew/etc/profile.d/bash_completion.sh"
     fi

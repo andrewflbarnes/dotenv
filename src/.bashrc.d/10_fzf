@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+export FZF_DEFAULT_OPTS="\
+--walker-skip=.git,node-modules,.venv \
+--preview='{ [ -d {} ] && ls {}; } || { [ -f {} ] && bat --color=always -r :500 {}; } || { [ -e {} ] && ls -l {}; } || { var={}; [ -n \"\${!var}\" ] && echo \"\${!var}\"; } || :' \
+"
+type -t fzf &>/dev/null && eval "$(fzf --bash)"

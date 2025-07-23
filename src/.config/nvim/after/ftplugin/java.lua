@@ -99,14 +99,14 @@ local jdtls_cmd = {
 
 vim.g.jdtls_cmd = jdtls_cmd
 
-local bundles = {}
-local java_debug = vim.fn.stdpath('data') .. '/jdtls/java-debug'
-table.insert(bundles, vim.fn.glob(java_debug .. "/com.microsoft.java.debug.plugin/target/com.microsoft.java.debug.plugin-*.jar", 1))
-local java_test = vim.fn.stdpath('data') .. '/jdtls/vscode-java-test'
-vim.list_extend(bundles, vim.split(vim.fn.glob(java_test .. "/server/*.jar", 1), "\n"))
-local init_options = {
-  bundles = bundles
-}
+--local bundles = {}
+--local java_debug = vim.fn.stdpath('data') .. '/jdtls/java-debug'
+--table.insert(bundles, vim.fn.glob(java_debug .. "/com.microsoft.java.debug.plugin/target/com.microsoft.java.debug.plugin-*.jar", 1))
+--local java_test = vim.fn.stdpath('data') .. '/jdtls/vscode-java-test'
+--vim.list_extend(bundles, vim.split(vim.fn.glob(java_test .. "/server/*.jar", 1), "\n"))
+--local init_options = {
+--  bundles = bundles
+--}
 
 local config = {
   cmd = jdtls_cmd,
@@ -171,6 +171,6 @@ local config = {
       --      },
     }
   },
-  init_options = init_options,
+  --init_options = init_options,
 }
 require('jdtls').start_or_attach(config)

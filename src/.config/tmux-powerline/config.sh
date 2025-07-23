@@ -226,7 +226,7 @@
 	export TMUX_POWERLINE_SEG_TIME_FORMAT="%H:%M"
 	# Change this to display a different timezone than the system default.
 	# Use TZ Identifier like "America/Los_Angeles"
-	export TMUX_POWERLINE_SEG_TIME_TZ=""
+	export TMUX_POWERLINE_SEG_TIME_TZ="Europe/London"
 # }
 
 # tmux_mem_cpu_load.sh {

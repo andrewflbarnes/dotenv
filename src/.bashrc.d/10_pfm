@@ -1,3 +1,6 @@
 #!/usr/bin/env bash
 
-type -t pfm &>/dev/null && eval "$(pfm init bash)"
+if type -t pfm &>/dev/null
+then
+    eval "$(pfm init "${SHELL//*[\/-]/}")"
+fi

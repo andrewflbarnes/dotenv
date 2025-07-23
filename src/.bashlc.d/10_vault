@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 function _vault_cubbify_help {
     echo "SYNTAX: vault_cubbify <command> <endpoint> <key> [as-role]"
@@ -53,3 +53,40 @@ function vault_cubbify {
     vault read cubbyhole/$key
 }
 export -f vault_cubbify
+
+export VAULT_LEASE_HOME="${HOME}/.vault-leases"
+function vault_lease_renew {
+  local lease=$1
+  local env=${2:$VAULT_ENV}
+
+  if [ -z "$lease" ]
+  then
+    echo "SYNTAX: vault_lease_renew <lease_id> [env]" >&2
+    return 1
+  fi
+
+  if [ -z "$env" ]
+  then
+    echo "Provide an environment to use or run vaultprofile" >&2
+    return 1
+  fi
+
+  if ! mkdir -p "$VAULT_LEASE_HOME"
+  then
+    echo "Unable to create vault lease home \"$VAULT_LEASE_HOME\"" >&2
+    return 1
+  fi
+
+  (
+    _vault_use_env "$env"
+    local logfile=$VAULT_LEASE_HOME/${lease//\//-}
+    local infofile=$VAULT_LEASE_HOME/${lease//\//-}.info
+    nohup sh -c "echo pid=\$\$ > \"$infofile\"; echo \"lease=$lease\" >> \"$infofile\"; while true; do vault lease renew \"$lease\" || exit 1; vault lease lookup \"$lease\"; sleep 3600; done;" > "$logfile" &
+  )
+}
+export -f vault_lease_renew
+
+function vault_lease_list {
+  awk 'BEGIN { FS="=" } $1 == "lease" { print $2 }' "$VAULT_LEASE_HOME"/*.info
+}
+export -f vault_lease_list

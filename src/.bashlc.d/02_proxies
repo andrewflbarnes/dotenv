@@ -61,3 +61,9 @@ function proxyenv {
   done
 }
 export -f proxyenv
+
+function disable_proxies {
+  export NO_PROXY="*"
+  export no_proxy="$NO_PROXY"
+}
+export -f disable_proxies

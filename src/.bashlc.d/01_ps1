@@ -117,7 +117,7 @@ function prompt_command {
     nixenv="\[${_fmt_lr}\][nix]\[${_fmt_x}\] "
   fi
 
-  local aws="\[${_fmt_lw}\][${AWS_REGION:-none}:${AWS_PROFILE:-default}]\[${_fmt_x}\]"
+  local aws="\[${_fmt_lw}\][${AWS_DEFAULT_REGION:-none}:${AWS_PROFILE:-default}]\[${_fmt_x}\]"
 
   local java=$(_ps1_java_version)
 
@@ -262,7 +262,7 @@ function envinfo {
   printf "%-25s ${_fmt_lb}%s${_fmt_x}\n"  "Java version:"           ${java}
   printf "%-25s ${_fmt_lb}%s${_fmt_x}\n"  "Node version:"           ${node}
   printf "%-25s ${_fmt_lw}%s${_fmt_x}\n"  "Vault role:"             ${VAULT_PROFILE:-none}
-  printf "%-25s ${_fmt_lw}%s${_fmt_x}\n"  "AWS region:"             ${AWS_REGION:-none}
+  printf "%-25s ${_fmt_lw}%s${_fmt_x}\n"  "AWS region:"             ${AWS_DEFAULT_REGION:-none}
   printf "%-25s ${_fmt_lw}%s${_fmt_x}\n"  "AWS profile:"            ${AWS_PROFILE:-default}
   printf "%-25s ${_fmt_lc}%s${_fmt_x}\n"  "Working directory:"      $(pwd)
   printf "%-25s ${_fmt_ly}%s${_fmt_x}\n"  "Git branch:"             $(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "N\A")

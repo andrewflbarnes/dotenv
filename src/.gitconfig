@@ -18,6 +18,7 @@
 	mergec = merge --continue
 	rebasec = rebase --continue
 	ru = remote update
+	rup = remote update --prune
 	rv = remote -v
 	st = status --short --branch
 	andrewflbarnes = !bash ~/.gitsh andrewflbarnes

@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 
 export PIPENV_VENV_IN_PROJECT=1
+if [ -f "$PYENV_ROOT/shims/python" ]
+then
+    export PIPENV_PYTHON="$PYENV_ROOT/shims/python"
+fi
 
 function pipenv_completion {
     local pipenv_completion_cache="$HOME/.pipenv_completion.cache"

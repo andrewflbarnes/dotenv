@@ -2,21 +2,27 @@
 
 export VAULT_PROFILE=""
 export VAULT_COMPANY="andrewflbarnes"
-export _vault_prefix=".vault."
+export VAULT_PROFILE_HOME="${HOME}/.vault-profiles"
+export _vault_prefix=""
 export _vault_suffix=""
 export _vault_none="none"
 export _vault_default_profile=0
 export _vault_token_file=${HOME}/.vault-token
-export _vault_info_file=${HOME}/.vault-info
+export _vault_info_file=${VAULT_PROFILE_HOME}/.vault-info
+
+if ! [ -d "${VAULT_PROFILE_HOME}" ]
+then
+    mkdir -p "${VAULT_PROFILE_HOME}"
+fi
 
 function _vault_files {
-    ls ${HOME}/${_vault_prefix}${1}${_vault_suffix}
+    ls "${VAULT_PROFILE_HOME}/${_vault_prefix}${1}"$2"${_vault_suffix}" 2>/dev/null
 }
 export -f _vault_files
 
 function _vault_environments {
     local env_prefix=$1
-    _vault_files "${env_prefix}*" 2>/dev/null | sed "s/[^[:space:]]*\/${_vault_prefix}\([^[:space:]]*\)${_vault_suffix}/\1/g"
+    _vault_files "${env_prefix}" "*" 2>/dev/null | sed "s/[^[:space:]]*\/${_vault_prefix}\([^[:space:]]*\)${_vault_suffix}/\1/g"
 }
 export -f _vault_environments
 
@@ -37,10 +43,11 @@ function vaultprofile {
     then
         echo "Please provide an existing environment id/name:" >&2
         local i=0
-        for e in ${environments[@]}
+        for e in "${environments[@]}"
         do
             if [[ "${VAULT_PROFILE}" = "${e}" ]] || [ -z "${VAULT_PROFILE}" -a "${i}" -eq 0 ]
             then
+                # shellcheck disable=SC2154
                 printf -- "- %-4s ${_fmt_g}${e}${_fmt_x}\n" "(${i})" >&2
             else
                 printf -- "- %-4s ${e}\n" "(${i})" >&2
@@ -57,6 +64,7 @@ function vaultprofile {
         unset VAULT_ROLE_ID
         unset VAULT_SECRET_ID
         unset VAULT_ENV
+        unset VAULT_MOUNT
         unset VAULT_ORG
         unset VAULT_ROLE
     else
@@ -69,36 +77,38 @@ function vaultprofile {
             env=${environment}
         fi
 
-        . ${HOME}/${_vault_prefix}${env}${_vault_suffix}
+        # shellcheck disable=SC1090
+        . "${VAULT_PROFILE_HOME}/${_vault_prefix}${env}${_vault_suffix}"
         export VAULT_PROFILE=${env}
 
-        _vault_set_env_token ${VAULT_ENV}
+        _vault_set_env_token "${VAULT_ENV}" "$VAULT_MOUNT"
     fi
 }
 export -f vaultprofile
 
 function _vault_set_env_token {
     local env=$1
-    local vault_env_token_file=${HOME}/.vault-token.${env}
+    local mount=${2:-$VAULT_DEFAULT_MOUNT}
+    local vault_env_token_file=${VAULT_PROFILE_HOME}/vault-token.${env}-${mount}
 
     if [ -z "${env}" ]
     then
         return
     fi
 
-    if [ ! -r ${vault_env_token_file} ]
+    if [ ! -r "${vault_env_token_file}" ]
     then
-        vault_login
+        vault_login "$mount"
     else
-        mv ${_vault_token_file} ${HOME}/.vault-token.bak
-        cp ${vault_env_token_file} ${_vault_token_file}
+        mv "${_vault_token_file}" "${VAULT_PROFILE_HOME}/vault-token.bak" 2>/dev/null
+        cp "${vault_env_token_file}" "${_vault_token_file}"
     fi
 }
 export -f _vault_set_env_token
 
 function vault_url {
     local env=${1,,}
-    if [ -z "${env}" -o "prod" = "${env}" ]
+    if [ -z "${env}" ] || [ "prod" = "${env}" ]
     then
         echo "https://vault.${VAULT_COMPANY}.io:8200"
     else
@@ -109,45 +119,56 @@ function vault_url {
 export -f vault_url
 
 function vault_setup {
-    local env=${1,,}
-    local org=${2,,}
-    local role=${3,,}
-    # TODO trap and reset
-    local vault_old_addr=${VAULT_ADDR}
-    local vault_old_env=${VAULT_ENV}
-    local vault_url=$(vault_url ${env})
+  local env=${1,,}
+  local org=${2,,}
+  local role=${3,,}
+  local mount=${4:-$VAULT_DEFAULT_MOUNT}
+  local mount=${mount,,}
+  # TODO trap and reset
+  local vault_old_addr=${VAULT_ADDR}
+  local vault_old_env=${VAULT_ENV}
+  local vault_old_mount=${VAULT_MOUNT}
+  local vault_url; vault_url=$(vault_url "${env}")
 
+  (
     export VAULT_ADDR=${vault_url}
+    #shellcheck disable=SC2030
     export VAULT_ENV=${env}
-    _vault_set_env_token ${env}
+    #shellcheck disable=SC2030
+    export VAULT_MOUNT=${mount}
+    _vault_set_env_token "${env}" "$mount"
 
-    local vault_file="${HOME}/${_vault_prefix}${env}"
+    local vault_file="${VAULT_PROFILE_HOME}/${_vault_prefix}${env}"
 
-    cat << EOF > ${vault_file}
+    cat << EOF > "${vault_file}"
 export VAULT_ADDR=${vault_url}
 export VAULT_ENV=${env}
+export VAULT_ROLE_ID=
+export VAULT_SECRET_ID=
 EOF
 
     if [ -n "${role}" ]
     then
-        vault_file="${HOME}/${_vault_prefix}${env}.${org}.${role}"
-        local vault_role_id=$(vault_roleid ${org} ${role} | awk '$1=="role_id" {print $2}')
+        vault_file="${VAULT_PROFILE_HOME}/${_vault_prefix}${env}.${org}.${role}"
+        local vault_role_id; vault_role_id=$(vault_roleid "${org}" "${role}" | awk '$1=="role_id" {print $2}')
         [ -z "$vault_role_id" ] && return 1
-        local vault_secret_id=$(vault_secretid ${org} ${role} | awk '$1=="secret_id" {print $2}')
+        local vault_secret_id; vault_secret_id=$(vault_secretid "${org}" "${role}" | awk '$1=="secret_id" {print $2}')
         [ -z "$vault_secret_id" ] && return 2
 
-        cat << EOF > ${vault_file}
+        cat << EOF > "${vault_file}"
 export VAULT_ADDR=${vault_url}
 export VAULT_ROLE_ID=${vault_role_id}
 export VAULT_SECRET_ID=${vault_secret_id}
 export VAULT_ENV=${env}
+export VAULT_MOUNT=${mount}
 export VAULT_ORG=${org}
 export VAULT_ROLE=${role}
 EOF
     fi
 
     export VAULT_ADDR=${vault_old_addr}
-    _vault_set_env_token ${vault_old_env}
+    _vault_set_env_token "${vault_old_env}" "$vault_old_mount"
+  )
 }
 export -f vault_setup
 
@@ -155,27 +176,88 @@ function _vault_role_token {
     vault \
         write \
         -format=json \
-        auth/approle/${VAULT_COMPANY}/${VAULT_ORG}/login \
-        role_id=$VAULT_ROLE_ID \
-        secret_id=$VAULT_SECRET_ID \
+        "auth/approle/${VAULT_COMPANY}/${VAULT_ORG}/login" \
+        role_id="$VAULT_ROLE_ID" \
+        secret_id="$VAULT_SECRET_ID" \
         | jq -r .auth.client_token
 }
 export -f _vault_role_token
 
 vaultprofile "${_vault_default_profile}"
 
+function _vault_mount {
+  local id=$1
+  if [ -z "$id" ] || [ -z "$VAULT_MOUNTS" ]
+  then
+    return
+  fi
+
+  echo "$VAULT_MOUNTS;" \
+    | awk '
+        BEGIN {
+          FS=":";
+          RS=";";
+        }
+        $1 == "'"$id"'" {
+          print $2;
+          exit;
+        }
+      '
+}
+export -f _vault_mount
+
 function vault_login {
-    mv ${_vault_token_file} ${HOME}/.vault-token.bak
+    local vmount
+    local vpath
+    if [ -n "$1" ]
+    then
+        vmount=$1
+        vpath=$(_vault_mount "$vmount")
+        if [ -z "$vpath" ]
+        then
+            echo "No VAULT_MOUNTS config for $1 found" >&2
+            return 1
+        fi
+    elif [ -n "$VAULT_MOUNT" ]
+    then
+        vmount=$VAULT_MOUNT
+        vpath=$(_vault_mount "$vmount")
+        if [ -z "$vpath" ]
+        then
+            echo "No VAULT_MOUNTS config for $VAULT_MOUNT found" >&2
+            return 1
+        fi
+    elif [ -n "$VAULT_MOUNT_PATH" ]
+    then
+        vpath=${VAULT_MOUNT_PATH}
+    else
+        vmount=${VAULT_DEFAULT_MOUNT}
+        vpath=$(_vault_mount "$vmount")
+        if [ -z "$vpath" ]
+        then
+            echo "No VAULT_MOUNTS config for default $vmount found" >&2
+            return 1
+        fi
+    fi
 
-    local username=$(sed 's/.*\\//' <<< $USER)
+    mv "${_vault_token_file}" "${VAULT_PROFILE_HOME}/vault-token.bak" 2>/dev/null
 
-    vault login -method=ldap -path=ldap/${VAULT_COMPANY}/unix username=${username}
+    local username; username=$(sed 's/.*\\//' <<< "$USER")
+
+    if [ -n "$VAULT_PASS" ]
+    then
+      vault login -method=userpass -path="$vpath" username="${username}" password="$VAULT_PASS"
+    else
+      vault login -method=ldap -path="$vpath" username="${username}"
+    fi
+
+    export VAULT_MOUNT=$vmount
 
     if [ -n "${VAULT_ENV}" ]
     then
-        local vault_env_token_file=${HOME}/.vault-token.${VAULT_ENV}
+        local vault_env_token_file=${VAULT_PROFILE_HOME}/vault-token.${VAULT_ENV}-${vmount:-$vpath}
 
-        cp ${_vault_token_file} ${vault_env_token_file}
+        cp "${_vault_token_file}" "${vault_env_token_file}"
     fi
 }
 export -f vault_login
@@ -193,7 +275,7 @@ function vault_roleid {
         return 1
     fi
 
-    vault read auth/approle/${VAULT_COMPANY}/${1}/role/${2}/role-id
+    vault read "auth/approle/${VAULT_COMPANY}/${1}/role/${2}/role-id"
 }
 export -f vault_roleid
 
@@ -210,9 +292,9 @@ function vault_secretid {
         return 1
     fi
 
-    vault write -f auth/approle/${VAULT_COMPANY}/${1}/role/${2}/secret-id
+    vault write -f "auth/approle/${VAULT_COMPANY}/${1}/role/${2}/secret-id"
 
-    printf "%s===\n=== %sYou must update your VAULT_SECRET_ID export!%s\n===\n%s" $_fmt_g $_fmt_x $_fmt_g $_fmt_x
+    printf "%s===\n=== %sYou must update your VAULT_SECRET_ID export!%s\n===\n%s" "$_fmt_g" "$_fmt_x" "$_fmt_g" "$_fmt_x"
 }
 export -f vault_secretid
 
@@ -230,7 +312,7 @@ function vault_as_role {
 export -f vault_as_role
 
 function _vaultinfo_file {
-    echo "${_vault_info_file}.${VAULT_ENV}"
+    echo "${_vault_info_file}.${1:-$VAULT_ENV}"
 }
 export -f _vaultinfo_file
 
@@ -241,7 +323,7 @@ export -f _vault_policies
 
 function _vault_policy_approles {
     local policy=$1
-    vault policy read $policy \
+    vault policy read "$policy" \
         | awk '/^path.*approle/{print $2}' \
         | sed 's/"//g;s/[/*]*$//' \
         | sort \
@@ -251,14 +333,14 @@ export -f _vault_policy_approles
 
 function _vault_policy_approles_resolved {
     local policy=$1
-    local approle_paths=$(_vault_policy_approles $policy)
+    local approle_paths; approle_paths=$(_vault_policy_approles "$policy")
     local path
     for path in $approle_paths
     do
-        local org=$(sed 's/\/role.*//;s/.*\///' <<< $path)
+        local org; org=$(sed 's/\/role.*//;s/.*\///' <<< "$path")
         if [[ "$path" =~ /role$ ]]
         then
-            local roles=$(vault list $path 2>/dev/null | tail -n+3)
+            local roles; roles=$(vault list "$path" 2>/dev/null | tail -n+3)
             local role
             for role in $roles
             do
@@ -269,7 +351,8 @@ function _vault_policy_approles_resolved {
         fi
     done \
         | sort \
-        | uniq
+        | uniq \
+        | grep -v "\+"
 }
 export -f _vault_policy_approles_resolved
 
@@ -289,14 +372,14 @@ function vaultinfo_refresh {
     do
         printf "%-100s" "Refreshing from ${_fmt_bd}${_fmt_g}${policy}${_fmt_x} policy..." >&2
         echo "ZZZ $policy"
-        vault policy read $policy
+        vault policy read "$policy"
         echo "${_fmt_bd}${_fmt_g}Done${_fmt_x}" >&2
     done \
         | awk '
             /ZZZ/                        { policy=$2 }
             $1 == "path"                 { printf policy " " $2 }
             $1 ~ /(capabilities|policy)/ { $1=""; $2=""; print $0 }
-        ' > $infofile
+        ' > "$infofile"
 }
 export -f vaultinfo_refresh
 
@@ -314,16 +397,17 @@ function vaultinfo_refresh_all {
 export -f vaultinfo_refresh_all
 
 function vaultinfo {
-    if [ -z "${VAULT_ENV}" ]
+    local env="${1:-$VAULT_ENV}"
+    if [ -z "${env}" ]
     then
         echo "A valid vault profile must be set - try running \"vaultprofile\"" >&2
         return 1
     fi
 
     local infofile
-    infofile=$(_vaultinfo_file)
+    infofile=$(_vaultinfo_file "$env")
 
-    if [ ! -e $infofile ]
+    if [ ! -e "$infofile" ]
     then
         echo "No vault info has been fetched for the current environment - try running \"vaultinfo_refresh\"" >&2
         return 1
@@ -332,22 +416,22 @@ function vaultinfo {
     {
         echo "ZZZ Approles:"
         echo "ZZZ"
-        awk '$2 ~ /^"auth\/approle/ { $1=""; print }' $infofile | sort
+        awk '$2 ~ /^"auth\/approle/ { $1=""; print }' "$infofile" | sort
 
         echo "ZZZ"
         echo "ZZZ Amazon STS:"
         echo "ZZZ"
-        awk '$2 ~ /\/sts\// { $1=""; print }' $infofile | sort
+        awk '$2 ~ /\/sts\// { $1=""; print }' "$infofile" | sort
 
         echo "ZZZ"
         echo "ZZZ DB Creds:"
         echo "ZZZ"
-        awk '$2 ~ /^"database/ { $1=""; print }' $infofile | sort
+        awk '$2 ~ /^"database/ { $1=""; print }' "$infofile" | sort
 
         echo "ZZZ"
         echo "ZZZ Secrets:"
         echo "ZZZ"
-        awk '$2 ~ /^"secret/ { $1=""; print }' $infofile | sort
+        awk '$2 ~ /^"secret/ { $1=""; print }' "$infofile" | sort
     } \
         | sed 's/"//g' \
         | awk '
@@ -371,31 +455,48 @@ export -f vaultinfo
 
 function vault_setup_env {
     local env=$1
+    local mount=${2:-$VAULT_DEFAULT_MOUNT}
 
     (
-        _vault_use_env $env
+        _vault_use_env "$env" "$mount"
 
+        local added=""
         local policy
         local disp_pol disp_role
         for policy in $(_vault_policies)
         do
-            disp_pol=$(echo "${_fmt_bd}${_fmt_c}${policy}${_fmt_x}")
+            disp_pol="${_fmt_bd}${_fmt_c}${policy}${_fmt_x}"
             local orgrole
             for orgrole in $(_vault_policy_approles_resolved "$policy")
             do
-                disp_role=$(echo "${_fmt_bd}${orgrole}${_fmt_x}")
+                local org role
+                read -r org role <<< "$(tr ':' ' ' <<< "$orgrole")"
 
+                local skippable skip=0
+                for skippable in $VAULT_SETUP_EXCLUDE_ROLES $added
+                do
+                  if [[ "$role" == "$skippable" ]] || [[ "$orgrole" == "$skippable" ]]
+                  then
+                    skip=1
+                  fi
+                done
+
+                if [[ "$skip" == 1 ]]
+                then
+                  continue
+                fi
+
+                disp_role="${_fmt_bd}${orgrole}${_fmt_x}"
                 printf "%-120s" "Setting up [${disp_pol}] ${disp_role}..."
 
-                local org role
-                read org role <<< "$(tr ':' ' ' <<< "$orgrole")"
-                if ! vault_setup $env $org $role 2>/dev/null
+                if ! vault_setup "$env" "$org" "$role" "$mount" 2>/dev/null
                 then
                     echo "${_fmt_bd}${_fmt_r}Failed"
                     echo "Try running \"vault_setup $env $org $role\" manually${_fmt_x}"
                 else
                     echo "${_fmt_bd}${_fmt_g}Done${_fmt_x}"
                 fi
+                added="$added $orgrole"
             done
         done
     )
@@ -403,49 +504,86 @@ function vault_setup_env {
 export -f vault_setup_env
 
 function vault_setup_all {
-    local env
+  local mounts=${*:-${!VAULT_MOUNTS[@]}}
+
+  (
+    export VAULT_PASS
+    read -srp "Password (leave blank to authenticate in each env): " VAULT_PASS
+
+    local env mount
     for env in dev sit stage prod
     do
-        echo "${_fmt_bd}${_fmt_g}== Environment: ${env} ==${_fmt_x}"
-        vault_setup_env "$env"
+      # shellcheck disable=SC2013
+      for mount in $(sed -E 's/:[^;]*;?/ /g' <<< "${VAULT_MOUNTS}")
+      do
+        echo "${_fmt_bd}${_fmt_g}== Environment: ${env} $mount ==${_fmt_x}"
+        vault_setup_env "$env" "$mount"
+      done
     done
+  )
 }
 export -f vault_setup_all
 
 function _vault_use_env {
     local env="$1"
+    local mount="$2"
 
-    _vault_ensure_env $env
-    vaultprofile $env
-    _vault_ensure_logged_in
+    _vault_ensure_env "$env"
+    vaultprofile "$env"
+    _vault_ensure_logged_in "$mount"
 }
 export -f _vault_use_env
 
 function _vault_ensure_env {
     local env="$1"
 
-    local env_file=$(_vault_files $env)
+    local env_file; env_file=$(_vault_files "$env")
     if [ ! -f "$env_file" ]
     then
         echo "${_fmt_bd}${_fmt_y}Setting up vaultprofile for new env...${_fmt_x}"
-        vault_setup $env >/dev/null
+        vault_setup "$env" >/dev/null
     fi
 }
 export -f _vault_ensure_env
 
 function _vault_ensure_logged_in {
-    if ! vault token lookup &>/dev/null
+    local mount="${1:-$VAULT_DEFAULT_MOUNT}"
+    if [[ "$VAULT_MOUNT" != "$mount" ]] || ! vault token lookup &>/dev/null
     then
-        echo "${_fmt_bd}${_fmt_y}Reauthenticating with environment...${_fmt_x}"
-        vault_login >/dev/null
+        echo "${_fmt_bd}${_fmt_y}Reauthenticating with environment on $mount mount...${_fmt_x}"
+        vault_login "$mount" >/dev/null
     fi
 }
 export -f _vault_ensure_logged_in
 
 # completion
+_vault_login() {
+  local cur cword
+  _get_comp_words_by_ref cur cword
+  if [ "$cword" -gt 1 ]
+  then
+    COMPREPLY=()
+    return
+  fi
+
+  local mountkeys
+  mountkeys=$(awk '
+    BEGIN {
+      FS=":";
+      RS=";";
+    }
+    {
+      print $1;
+    }
+  ' <<< "$VAULT_MOUNTS")
+  # shellcheck disable=SC2207
+  COMPREPLY=($(compgen -W "$mountkeys" "$cur"))
+}
+export -f _vault_login
+
 function _vaultprofile {
     local length=${#COMP_WORDS[@]}
-    if [ $length -gt 2 ]
+    if [ "$length" -gt 2 ]
     then
         COMPREPLY=()
         return

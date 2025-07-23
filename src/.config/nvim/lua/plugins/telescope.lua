@@ -3,6 +3,7 @@ local lu = require('lazyutils')
 local keys = lu.lazy_keys(function(c) return {
   { 'n', '<leader>ff', c.find_files, { desc = "[f]ind [f]iles" } },
   { 'n', '<leader>fg', c.live_grep, { desc = "[f]ind [g]rep" } },
+  { 'n', '<leader>fG', function() c.live_grep({grep_open_files=true}) end, { desc = "[f]ind [G]rep open files" } },
   { 'n', '<leader>fb', c.buffers, { desc = "[f]ind [b]uffers" } },
   { 'n', '<leader>fh', c.help_tags, { desc = "[f]ind [h]elp" } },
   { 'n', '<leader>fr', c.lsp_references, { desc = "[f]ind [r]eferences" } },
