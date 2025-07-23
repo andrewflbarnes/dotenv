@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+PATH="/opt/local/bin:$PATH"
+
 if command -v nvim &> /dev/null
 then
     export EDITOR=nvim
