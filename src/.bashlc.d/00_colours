@@ -56,3 +56,34 @@ export _fmt_bgb=$'\033[44m'
 export _fmt_bgm=$'\033[45m'
 export _fmt_bgc=$'\033[46m'
 export _fmt_bgw=$'\033[47m'
+
+export __fmts_file="${BASH_SOURCE[0]}"
+
+function fmtlist {
+  grep -EB1 '^export _fmt_' "$__fmts_file" \
+    | awk '
+        /^#/ {
+          print "";
+          print $0;
+        }
+        /^export / {
+          print $2;
+        }
+      '
+}
+export -f fmtlist
+
+function fmtsanitise {
+  local f;
+  if [ -t 0 ]; then
+    f=$1;
+  else
+    f=/dev/stdin;
+  fi;
+  if [ -z "$f" ]; then
+    echo "first arg must be file";
+    return 1;
+  fi;
+  sed 's/\x1b[^m]*m//g' "$f"
+}
+export -f fmtsanitise

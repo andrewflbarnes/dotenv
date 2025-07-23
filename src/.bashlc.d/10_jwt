@@ -11,7 +11,7 @@ function jwt_decode {
 
     local line
     local i=0
-    tr '.' '\n' <<< $token \
+    tr '.' '\n' <<< "$token" \
         | awk '
             FNR < 3 {
                 pad=length($1) % 4;
@@ -25,12 +25,12 @@ function jwt_decode {
                 print $1;
             }
         ' \
-        | while read line
+        | while read -r line
         do
             i=$((i+1))
             if [ $i -eq 3 ]
             then
-                echo $line
+              echo "$(cut -b-8 <<< "$line")<MASKED>"
             else
                 base64 --decode <<< "$line" | jq .
             fi

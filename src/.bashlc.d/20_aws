@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
-
-AWS_DEFAULT_REGION=us-east-1
+# NOTE: AWS_DEFAULT_REGION supplied for backwards compatibility
+export AWS_REGION=us-east-1
+export AWS_DEFAULT_REGION=$AWS_REGION
 export _aws_credentials="${HOME}/.aws/credentials"
 
 export _aws_none=none
@@ -15,10 +16,10 @@ export -f _awsprofiles
 
 function awsprofile {
     local profile=$1
-    local profiles=(${_aws_default} $(grep "^\[[a-z-]*]$" ${_aws_credentials} | grep -v "\[default]" | tr -d '[]' | sort))
+    local profiles=(${_aws_default} $(grep "^\[[a-z:-]*]$" ${_aws_credentials} | grep -v "\[default]" | tr -d '[]' | sort))
     local profile_count=${#profiles[@]}
 
-    if [[ -z "${profile}" ]] || [ $((profile_count-profile-1)) -lt 0 ] || [[ ! "${profile}" =~ ^[0-9]+$ && ! " ${profiles[@]} " =~ " ${profile} " ]]
+    if [[ -z "${profile}" ]] || [[ "${profile}" =~ ^[0-9]+$ && $((profile_count-profile-1)) -lt 0 ]] || [[ ! "${profile}" =~ ^[0-9]+$ && ! " ${profiles[@]} " =~ " ${profile} " ]]
     then
         echo "Please provide an existing profile id/name:" >&2
         local i=0
@@ -119,11 +120,14 @@ function awsregion {
     if [[ "${region}" =~ ^(${_aws_none}|0)$ ]]
     then
         unset AWS_REGION
+        unset AWS_DEFAULT_REGION
     elif [[ "${region}" =~ ^[0-9]+$ ]]
     then
         export AWS_REGION=${regions[region]}
+        export AWS_DEFAULT_REGION=$AWS_REGION
     else
         export AWS_REGION=${region}
+        export AWS_DEFAULT_REGION=$AWS_REGION
     fi
 }
 export -f awsregion

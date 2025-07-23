@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+# At time of writing ctop leverages termbox (maintenance mode) which doesn't support TMUX.
+# The solution is to just spoof another term type...
+
+export CTOP_SPOOF_TERM=screen
+function ctop {
+  if [[ "$TERM" =~ ^tmux ]]
+  then
+    TERM=${TERM//tmux/$CTOP_SPOOF_TERM} command ctop "$@"
+  else
+    command ctop "$@"
+  fi
+}
+export -f ctop

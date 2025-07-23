@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+alias vi='NVIM_APPNAME=basic nvim'
+alias vim='NVIM_APPNAME=basic nvim'
+
+if command -v nvim &>/dev/null
+then
+    export EDITOR=nvim
+fi

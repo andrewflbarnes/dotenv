@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+export PS4_PADDING="                                   "
+export PS4='+ ${FUNCNAME[0]}:$LINENO ${PS4_PADDING:0:((${#PS4_PADDING}-${#FUNCNAME[0]}-${#LINENO}))} '
+
 # Usage: eval $(debug_fd_open [ fd_variable ])
 # Where:
 #   fd_variable - an optional name for the variable to store the FD in, defaults to dfd.
