@@ -34,6 +34,8 @@
 	signingkey = /Users/andrew.barnes/.ssh/id_rsa.pub
 [gpg]
 	format = ssh
+[gpg "ssh"]
+  allowedSignersFile = ~/.gitsigners
 [commit]
 	gpgsign = true
 
